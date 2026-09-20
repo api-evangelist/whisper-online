@@ -1,0 +1,59 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/llms.txt
+docs:
+- https://whisper.online/docs/verify
+- https://whisper.online/docs/quickstart
+- https://whisper.online/.well-known/agent-onboarding.json
+- https://www.whisper.security/faq
+probed:
+- {url: 'https://rdap.whisper.online/verify-identity/2a04:2a01:b69a:6717:e3b0:51ff:3bf7:f478', status: 200, fetched: '2026-09-19', note: 'is_whisper_agent true, dane_ok true, jws_ok true — the published first resident'}
+- {url: 'https://graph.whisper.online/api/query', method: POST, status: 200, fetched: '2026-09-19', note: 'keyless CALL whisper.identify("api.openai.com") returned a real row'}
+- {url: 'https://whisper.online/egress-ip', status: 200, fetched: '2026-09-19', note: 'echoes the caller''s source address'}
+- {url: 'https://whisper.online/checkpoint', status: 200, fetched: '2026-09-19'}
+summary: >-
+  Whisper has no separate test environment and no test-mode key prefix; production is the sandbox and the
+  keyless tier is the rehearsal surface. Anyone can verify the published "first resident" agent, run
+  read-only graph procedures, and read the transparency ledger with no account. Everything that allocates
+  (register, identity, connect) runs on a free trial key obtained from an email address alone, with published
+  trial limits, and is proven from the outside with the same stock tools (dig, curl, whois).
+test_vs_live:
+  separate_environment: false
+  key_prefixes: 'whisper_live_ is the only prefix on whisper.online; there is no whisper_test_'
+  note: 'Self-hosted or staging setups are supported by the SDKs via $WHISPER_CONTROL_URL / $WHISPER_RDAP_URL overrides (sdk-node docs), but no public staging host is published.'
+keyless_fixtures:
+  first_resident:
+    address: '2a04:2a01:b69a:6717:e3b0:51ff:3bf7:f478'
+    fqdn: ae3b051ff3bf7f478.tdc38e7c55bad3306a92b830f9bb1e4f9.agents.whisper.online
+    friendly_name: scout.tdc38e7c55bad3306a92b830f9bb1e4f9.agents.whisper.online
+    note: Published in llms.txt and the docs as the address to run the seven keyless proofs against; RDAP record registered 2026-06-26, country NL, status active.
+  second_documented_agent:
+    address: '2a04:2a01:eb5a:ca74:cef2:2a:323d:40d4'
+    note: Used throughout /docs/control-plane, /docs/verify and /docs/mcp examples.
+  seven_keyless_proofs:
+  - dig -x <addr> +short
+  - dig +short AAAA <fqdn>
+  - dig +short TLSA _443._tcp.<fqdn>
+  - curl -s https://rdap.whisper.online/ip/<addr>
+  - whois -h whois.whisper.online <addr>
+  - curl -s https://rdap.whisper.online/verify-identity/<addr>
+  - dig +short CNAME <friendly-name>
+  trustless: 'whisper verify --trustless <addr> re-derives dnssec, dane, transparency and identity_doc from the IANA DNSSEC root with the Whisper API explicitly not trusted'
+  graph_examples:
+  - 'CALL whisper.identify("api.openai.com")'
+  - 'CALL whisper.assess(["185.220.101.1"])'
+  - 'CALL whisper.explain("185.220.101.1")'
+  - 'CALL whisper.blastRadius({seed:''ns1.dreamhost.com''})'
+  ledger:
+  - https://whisper.online/checkpoint
+  - https://whisper.online/checkpoint/key
+  - https://whisper.online/inclusion?leaf=0
+  - https://whisper.online/consistency?old=1&new=64
+egress_confirmation:
+  endpoint: https://whisper.online/egress-ip
+  behaviour: 'Fetched THROUGH the agent''s proxy it must return {"ip":"<the agent''s own /128>"}; whisper run performs this check before exec and treats a mismatch as a hard error'
+free_trial:
+  signup: two HTTP calls to console.whisper.security/api/signup and /api/signup/verify (email + 6-digit code, no CAPTCHA, no human)
+  limits: '10 requests/minute, 500/day (agent-onboarding.json trial_limits); default cap of 5 concurrently-registered agents and 5 standing /128 identities per the control-plane docs (the onboarding manifest and llms.txt state max_agents 1000 — the two sources disagree and both are recorded)'
+  mcp: no anonymous mode; every account starts free with API, Console and MCP access
+public_demos: 'whisper.security homepage and /product carry live example queries; the FAQ states everything else requires a free account'

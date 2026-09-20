@@ -1,0 +1,133 @@
+generated: '2026-09-19'
+method: searched
+probe: true
+source: https://whisper.online/privacy
+docs:
+- https://whisper.online/privacy
+- https://whisper.online/terms
+- https://www.whisper.security/privacy-policy
+- https://www.whisper.security/docs/ai/mcp/setup
+- https://www.whisper.security/docs/ai/mcp/deprecation
+signals:
+  data_subject_request:
+    url: https://whisper.online/privacy
+    section: '10. Your rights'
+    channel: hello@whisper.security
+    stated_sla: 'We respond within one month, as the GDPR requires.'
+    rights_named: [access (Art. 15), rectification (Art. 16), erasure (Art. 17), restriction (Art. 18), portability (Art. 20), objection (Art. 21), withdrawal of consent]
+    escalation: Autoriteit Persoonsgegevens (https://www.autoriteitpersoonsgegevens.nl/) or the supervisory authority where you live
+    evidence:
+    - source: https://whisper.online/privacy.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'To exercise any of these, email hello@whisper.security. We respond within one month, as the GDPR requires. You also have the right to lodge a complaint with the Dutch supervisory authority, the Autoriteit Persoonsgegevens'
+    - source: https://whisper.online/privacy.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'on a valid erasure request we destroy the key material that makes the entry''s personal data readable, so the data becomes permanently unreadable while the public log stays mathematically consistent.'
+    note: A documented request process with a channel, a response period and a specific erasure mechanism (crypto-shredding) for the append-only transparency log; no dedicated intake page (/privacy/requests 404) and no API endpoint. The MCP setup page adds privacy@whisper.security for audit-log deletion inside the 30-day window.
+  subprocessors:
+    url: https://www.whisper.security/privacy-policy
+    section: 'Who we share information with'
+    dated: '2026-09-05'
+    change_notice: 'we will publish an update at least 30 days before it takes effect for existing customers'
+    entries:
+    - {vendor: 'Clerk, Inc.', location: US, purpose: 'sign-up, sign-in, OAuth and account management'}
+    - {vendor: Stripe, location: IE/US, purpose: payment processing and subscription billing}
+    - {vendor: Hetzner Online GmbH, location: DE, purpose: hosting of application servers and data stores}
+    - {vendor: Vercel Inc., location: US/EU, purpose: hosting of the website, console and the workflow-execution endpoint}
+    - {vendor: 'Cloudflare, Inc.', location: US/EU, purpose: 'edge proxy, TLS termination, DDoS protection and bot detection on sign-in'}
+    - {vendor: Better Stack, location: EU, purpose: observability and log storage}
+    - {vendor: 'OpenAI, L.L.C.', location: US, purpose: natural-language query generation in the console}
+    - {vendor: 'HubSpot, Inc.', location: US, purpose: customer-relationship management and website forms}
+    - {vendor: Intercom Inc., location: US/EU, purpose: customer support and ticketing}
+    - {vendor: Prismic SAS, location: FR, purpose: content management system behind the website and documentation}
+    - {vendor: Cybot A/S, location: DK, purpose: Cookiebot consent management}
+    evidence:
+    - source: https://www.whisper.security/privacy-policy
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'Clerk, Inc. (US) — sign-up, sign-in, OAuth and account management. Stripe (IE/US) — payment processing and subscription billing. Hetzner Online GmbH (DE) — hosting of our application servers and data stores. Vercel Inc. (US/EU) — hosting of our website and console ... Cloudflare, Inc. (US/EU) — edge proxy, TLS termination, DDoS protection and bot detection on sign-in. Better Stack (EU) — observability and log storage. OpenAI, L.L.C. (US) — natural-language query generation in the console'
+    note: 'A named, located, purpose-tagged list with a 30-day change-notice commitment, dated "Last updated: 5 September 2026", inside the corporate (whisper.security) privacy policy. The platform policy at whisper.online/privacy names only categories ("infrastructure sub-processors ... payment and invoicing providers"). No standalone table: /legal/subprocessors and /subprocessors 404 on both hosts.'
+  data_residency:
+    url: https://whisper.online/privacy
+    section: '8. International transfers'
+    stated: 'The Service is operated from the European Union, and we keep processing in the EU where we can.'
+    safeguards: 'GDPR Chapter V — an adequacy decision where one exists, or the European Commission''s Standard Contractual Clauses'
+    evidence:
+    - source: https://whisper.online/privacy.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'The Service is operated from the European Union, and we keep processing in the EU where we can. Where a sub-processor processes personal data outside the European Economic Area, we rely on appropriate safeguards under GDPR Chapter V'
+    - source: https://www.whisper.security/faq.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'The graph engine itself runs in the EU.'
+    - source: https://www.whisper.security/docs/ai/mcp/setup.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'Audit and operational logs are retained for 30 days, then permanently deleted from production systems.'
+    note: 'A published processing-location statement with transfer safeguards and a retention period for MCP audit logs; there is no customer-selectable region and no /docs/data-residency page (404). The address space itself is RIPE-allocated (2a04:2a01::/32) and RDAP records carry country NL.'
+  incident_notification:
+    url: https://whisper.online/privacy
+    section: '9. How we protect it'
+    stated_period: 'as the GDPR requires'
+    evidence:
+    - source: https://whisper.online/privacy.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'No system is perfectly secure; if a breach affecting your rights occurs, we will notify you and the supervisory authority as the GDPR requires.'
+    note: A commitment to notify data subjects and the supervisory authority, with the period stated only by reference to the GDPR; recorded verbatim, not normalised to 72 hours.
+  support_lifetime:
+    url: https://www.whisper.security/docs/ai/mcp/deprecation
+    section: 'What happens before something is removed'
+    stated_period: 'The overlap is stated in the announcement itself, per change, because how long an old shape can be kept alive depends on what it is.'
+    evidence:
+    - source: https://www.whisper.security/docs/ai/mcp/deprecation.md
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'It is announced on the connector changelog before it is removed, not alongside the removal ... The old shape keeps working alongside the new one wherever both can coexist ... Security is the exception, and it is announced as one.'
+    note: A published deprecation/support policy for the MCP connector contract with a per-change overlap rather than a fixed number; the REST/Cypher surface carries only the additive-only statement on the control-plane page.
+  global_privacy_control:
+    url: https://www.whisper.security/privacy-policy
+    honored: false
+    evidence:
+    - source: https://www.whisper.security/privacy-policy
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'signals, and our website does not currently respond to them.'
+    note: 'Set from the published statement only (the corporate privacy policy says the website does not currently respond to Global Privacy Control / do-not-track signals); no header was sent to test it.'
+probed_absent:
+- signal: sbom
+  urls:
+  - {url: 'https://whisper.online/security/sbom', status: 404}
+  - {url: 'https://api.github.com/repos/whisper-sec/whisper-cli/releases/latest', status: 200, note: '34 assets: per-platform binaries, .sha256, .asc PGP signatures, checksums.txt — no SPDX/CycloneDX/in-toto asset'}
+  note: No bill of materials published; releases are signed and checksummed but carry no SBOM. Never derived — search only.
+- signal: accessibility_conformance
+  urls:
+  - {url: 'https://whisper.online/accessibility', status: 404}
+- signal: ai_transparency
+  urls:
+  - {url: 'https://whisper.online/ai/transparency', status: 404}
+  note: 'The corporate privacy policy discloses OpenAI as the sub-processor for natural-language query generation in the console and the MCP setup page states "No tool on this connector sends your input to a third-party model provider" — disclosures about AI use, not an AI-transparency statement page.'
+- signal: training_data_summary
+  urls: []
+  note: 'MCP setup: "Your queries, results, and conversation history are not used to train Whisper machine-learning models" — a no-training commitment about customer data, not a summary of training data for a model.'
+- signal: transparency_report
+  urls:
+  - {url: 'https://whisper.online/transparency', status: 404}
+  note: 'Whisper publishes a cryptographic transparency LOG of identity issuance (docs/transparency) — that is not a legal-requests transparency report.'
+- signal: age_assurance
+  urls: []
+  note: 'Terms §3 require users to be at least 16 and privacy §12 says the Service is not directed to children under 16 — a stated minimum age, not an assurance mechanism.'
+- signal: notice_and_action
+  urls: []
+  note: 'Abuse reports go to security@whisper.security (RIPE abuse-c) with revocation as the remedy (trust page); no content notice-and-action flow because the service hosts no user content.'
+- signal: exit_assistance
+  urls: []
+  note: 'Terms §13 describe termination effects (keys deactivated, allocations revoked) and registry data is published under https://nic.whisper.online/data-license; no exit-assistance or export commitment for account data beyond the GDPR portability right.'
+- signal: dpa
+  urls:
+  - {url: 'https://whisper.online/legal/dpa', status: 404}
+  - {url: 'https://www.whisper.security/dpa', status: 404}
+  note: 'Privacy §7 says sub-processors are "bound by data-processing agreements"; no customer DPA is published.'

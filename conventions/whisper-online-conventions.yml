@@ -1,0 +1,111 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/docs/control-plane
+derived_from: openapi/whisper-online-openapi.json
+docs:
+- https://whisper.online/docs/control-plane
+- https://whisper.online/docs/graph-api
+- https://www.whisper.security/docs/cypher-api/reference
+- https://www.whisper.security/docs/cypher-api/reference/query-post
+- https://www.whisper.security/docs/cypher-api/errors
+- https://whisper.online/docs/transparency
+description: >-
+  Cross-cutting behaviour of Whisper's API. The architecture is one endpoint: POST /api/query runs
+  openCypher, and provisioning/governance ride a single procedure, CALL whisper.agents({op, args}), while
+  every graph read is a named procedure or raw MATCH. Everything else (CLI, SDKs, MCP, A2A, n8n) is a
+  documented thin wrapper over that call, so the conventions below apply across all of them.
+base_url: https://graph.whisper.online   # documented control endpoint; the OpenAPI servers[] is https://whisper.online; graph.whisper.security is the legacy host
+api_style: 'openCypher over HTTPS — JSON body {"query","parameters","timeout"}; JSON envelope {columns, rows, statistics}; a ;-separated batch returns results[]'
+two_tier_access: 'Keyless answers for identify, assess, explain, variants, walk, origins, history, lookupTorRelay, the psl.* family, raw read-only Cypher, db.schema(), every ledger endpoint and /verify-identity. X-API-Key is required for CALL whisper.agents (the control plane) and submit (the one write into the shared graph). From inside a connected agent the /128 itself is the credential.'
+
+authentication:
+  scheme: 'X-API-Key header (canonical); Authorization: Bearer / ApiKey accepted on the graph hosts; OAuth 2.1 on the hosted MCP server'
+  key_prefixes: [whisper_live_ (whisper.online platform), whisper- (whisper.security signup)]
+  silent_downgrade: 'An unrecognised key on the REST graph endpoint is served as anonymous with HTTP 200 — check CALL whisper.quota() isAnonymous; the MCP connector returns 401 instead.'
+  detail: authentication/whisper-online-authentication.yml
+  scopes: scopes/whisper-online-scopes.yml
+
+idempotency:
+  supported: false
+  coverage: none
+  scope: []
+  mechanism: none documented — no Idempotency-Key header, no request-id replay, no retention window is published anywhere in the docs or the OpenAPI
+  natural_idempotency: 'Reads are idempotent (every hosted MCP tool is annotated idempotentHint:true). op:identity / whisper create reuses the key''s existing /128 rather than allocating another ("one key, one identity - create reuses it if the key already has one"); op:policy is a full replacement of the tenant policy. op:register mints a NEW agent, address and api_key on every call, and there is no key to make a retried register safe.'
+  docs: https://whisper.online/docs/control-plane
+
+reversibility:
+  grade: documented
+  note: 'Reversal paths exist for the allocation and connection surfaces, none carries a published time window, and the flagship write (revoke) is irreversible by design — the kill-switch is meant to be provable, not undoable. No window is asserted here because none is stated in the docs.'
+  surfaces:
+  - write: 'op:identity (allocate a /128)'
+    reversal: "op:identity with {release:true, address}"
+    window: none stated
+    docs: https://whisper.online/docs/control-plane
+  - write: 'op:connect (bring up egress)'
+    reversal: 'op:disconnect (declared as skill agents.disconnect in the agent card; whisper service / whisper run tear the local proxy down)'
+    window: none stated
+    docs: https://whisper.online/.well-known/agent-card.json
+  - write: 'op:policy (set resolver policy)'
+    reversal: 'set it again — op:policy with {allow_sources:[]} returns to any; a no-args call reads the current policy back'
+    window: none stated
+    docs: https://whisper.online/docs/control-plane
+  - write: 'op:register (mint an agent)'
+    reversal: 'op:revoke — destroys, does not undo: "irreversible", tears down address, forward DNS, PTR, DANE pin and status, and the event lands in the signed revocation status-list; the label cannot be un-revoked'
+    window: 'none (DNS caches decay within ~60 seconds per the 60-second TTLs)'
+    docs: https://whisper.online/docs/control-plane
+  - write: 'submit (observation into the shared graph); POST /entries and POST /attest (ledger leaves)'
+    reversal: 'none — an append-only RFC 6962 log; GDPR erasure is by crypto-shredding the salt behind a leaf, which leaves the tree and prior proofs valid'
+    window: none
+    docs: https://whisper.online/privacy
+  dry_run: 'none documented for writes; the keyless tier (verify, graph reads, egress-ip echo) is the rehearsal surface — see sandbox/whisper-online-sandbox.yml'
+
+pagination:
+  style: 'none on the control plane; Cypher SKIP/LIMIT on the graph; count-first page/pageSize on the MCP query tool; opaque cursor on whisper.export'
+  control_plane: 'op:list hands every agent back in a single result.rows array — "there is no separate pagination scheme to learn at scale, just a bigger array"; op:logs takes limit (default 1000, cap 10000) and from/to (epoch-ms, RFC 3339, or relative like -1h)'
+  graph: 'keyless ceiling of 100 rows per query; named views take limit (default 50, maximum 500); advisories skip-past-cardinality and null-pagination-param report paging edge cases; blastRadius caps dependent counts at 100,000 and sets total_capped'
+  mcp: 'query returns pagination{page, pageSize, totalCount, totalPages, hasMore} when pageSize is set; over-budget results set truncated / budgetTruncated with a continuation pointer'
+  docs: https://whisper.online/docs/graph-api
+
+field_expansion:
+  supported: false
+  note: 'Whole-node projections (RETURN n) omit the reconciled verdict properties unless "projectionFull": true is sent (advisory projection-verdict-omitted).'
+
+request_tracing:
+  response_headers: [X-Request-Id, X-Served-By]
+  request_headers: [X-Whisper-Client, X-Whisper-Client-Version, User-Agent]
+  observed: 'x-correlation-id on every mcp.whisper.security response (probed 2026-09-19); X-Whisper-Ledger-Claim on ledger responses states the current transparency claim; X-Whisper-Scitt-Entry carries the 32-byte entry commitment on SCITT receipts'
+  docs: https://www.whisper.security/docs/cypher-api/errors
+
+versioning:
+  scheme: unversioned paths; additive-only control verb; product versions on the CLI/card (0.219.2)
+  engine_version: CALL whisper.version()
+  detail: lifecycle/whisper-online-lifecycle.yml
+  changelog: changelog/whisper-online-changelog.yml
+
+error_envelope:
+  media_type: application/problem+json (raw Cypher) | application/json envelope (whisper.agents) | JSON-RPC 2.0 (A2A)
+  rfc9457: true
+  shape: 'problem: { type, title, status, detail, instance, timestamp, suggestions[] } — envelope: rows[0].error { code, message, retryable } + retry_after'
+  detail: errors/whisper-online-problem-types.yml
+  docs: https://www.whisper.security/docs/cypher-api/errors
+
+rate_limits:
+  signal_status: 429
+  signal_fields: 'retry_after (seconds) in the whisper.agents envelope on 429/503; retryAfter in the body when explain()/whisper.history() back-ends are unavailable; problem type query-quota-exceeded on raw Cypher'
+  headers: none documented (no RateLimit-* or Retry-After named in the docs; none observed on a keyless response)
+  detail: rate-limits/whisper-online-rate-limits.yml
+
+query_construction:
+  parameters: 'Always bind values as parameters ({"parameters":{"a":"example.com"}}); never concatenate them into the query text. When building a whisper.agents call by hand, map keys are sorted and string values single-quoted with '' doubled; args are data and are never evaluated as Cypher.'
+  timeout: 'timeout (ms) in the body; a value above the access tier is lowered, not honoured'
+  batch: 'top-level ; separates statements; each results[] element carries success and outcome (OK, PARSE_ERROR, EXECUTION_ERROR, DEADLINE_EXCEEDED)'
+  legacy_form: 'application/x-www-form-urlencoded q= (no parameters field) still works on graph.whisper.security only'
+  procedure_names: 'matched case-insensitively — confirm the literal name with CALL db.procedures() (psl.tldPlusOne, not psl; threatIntel.candidateCdnApex(limit), not threatintel(indicator))'
+
+verdict_reading:
+  rule: 'Read coverage before band. level NONE = not listed at this granularity; band UNKNOWN = never seen; only known-clean licenses the word clean; score null + level UNSCORED = evidence but no aggregate.'
+  evidence: 'Every identify/assess/explain answer carries an evidence[] traversal chain; named views ship the exact cypher and params per step.'
+
+events:
+  shared_signals: 'OpenID Shared Signals Framework configuration at /.well-known/ssf-configuration (spec_version 1_0; CAEP credential-change and session-revoked events; poll delivery urn:ietf:rfc:8936 at /ssf/poll; status list at /checkpoint/status-list). whisper.watch is the graph subscription verb; its event-delivery contract is documented as still being built.'
+  webhooks: none documented

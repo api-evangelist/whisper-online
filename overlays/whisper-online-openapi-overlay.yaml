@@ -1,0 +1,73 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Whisper API
+  version: 1.0.0
+extends: openapi/whisper-online-openapi.json
+x-generated: '2026-09-19'
+x-method: generated
+x-source: openapi/whisper-online-openapi.json
+actions:
+- target: $.info
+  update:
+    x-apievangelist:
+      catalog: https://apis.io/whisper-online
+      provider: Whisper Security
+      maintainer: Kin Lane <kin@apievangelist.com>
+      artifacts:
+      - apis.yml
+      - conformance/whisper-online-conformance.yml
+      - errors/whisper-online-problem-types.yml
+      - lifecycle/whisper-online-lifecycle.yml
+      - conventions/whisper-online-conventions.yml
+      - authentication/whisper-online-authentication.yml
+      - rate-limits/whisper-online-rate-limits.yml
+      - mcp/whisper-online-mcp.yml
+      - mcp/whisper-online-tool-crosswalk.yml
+      - a2a/whisper-online-a2a.yml
+- target: $.servers
+  update:
+  - url: https://whisper.online
+    description: The main site, verification, and the ledger
+    x-apievangelist-note: The same document is served byte-for-byte from https://agents.whisper.online/openapi.json and https://endpoint.whisper.online/openapi.json; the documented control endpoint for CALL whisper.agents is https://graph.whisper.online/api/query.
+- target: $.paths['/api/query'].post
+  update:
+    tags: [Graph and Control Plane]
+    x-apievangelist-rate-limit: 'Trial keys: 10 requests/minute, 500/day (agent-onboarding.json). Keyless reads are capped at 100 rows per query. 429 carries retry_after in the whisper.agents envelope; raw-Cypher errors are RFC 7807 application/problem+json (type https://whisper.security/errors/query-quota-exceeded).'
+    x-apievangelist-write-surface: 'Writes ride only CALL whisper.agents({op:...}) with X-API-Key and CALL whisper.submit; everything else is read-only.'
+- target: $.paths['/a2a'].post
+  update:
+    tags: [A2A]
+    x-apievangelist-agent-card: /.well-known/agent-card.json (A2A 1.0 shape) and /.well-known/agent.json (0.3.0 shape), 37 skills
+- target: $.paths['/verify-identity'].get
+  update:
+    tags: [Identity Verification]
+- target: $.paths['/checkpoint'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/checkpoint/key'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/checkpoint/status-list'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/checkpoint/ots/latest-confirmed'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/tile/{level}/{index}'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/inclusion'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/consistency'].get
+  update:
+    tags: [Transparency Ledger]
+- target: $.paths['/menu'].get
+  update:
+    tags: [Service Catalog]
+- target: $.paths['/.well-known/agent-card.json'].get
+  update:
+    tags: [Discovery]
+- target: $.paths['/.well-known/agent-onboarding.json'].get
+  update:
+    tags: [Discovery]

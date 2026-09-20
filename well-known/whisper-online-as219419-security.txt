@@ -1,0 +1,18 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+# Security contact for AS219419 / as219419.net (operated by Whisper Security).
+Contact: mailto:security@whisper.security
+Encryption: https://as219419.net/.well-known/openpgp-key.txt
+Policy: https://as219419.net/.well-known/disclosure-policy.txt
+Acknowledgments: https://as219419.net/.well-known/security-acknowledgments.txt
+Preferred-Languages: en
+Canonical: https://as219419.net/.well-known/security.txt
+Expires: 2027-06-19T00:00:00.000Z
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQTv8WY9mSU5aCEGperQ9wkIzzt5KQUCajaZ6gAKCRDQ9wkIzzt5
+Kei+AP9hO0aOl6XfpEWWKXf3XGbqoICeh2Tp/zZRJu+9Hq/YtgEA7eN1VtsHG0Rz
+90J37avJaxhovR3f8iqvN4MWa6jNAwk=
+=p1Fo
+-----END PGP SIGNATURE-----

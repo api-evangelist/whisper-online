@@ -1,0 +1,70 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/docs/control-plane
+derived_from: openapi/whisper-online-openapi.json
+docs:
+- https://whisper.online/docs/control-plane
+- https://whisper.online/docs/transparency
+- https://www.whisper.security/llms.txt
+- https://www.whisper.security/docs/whisper-graph/schema
+description: >-
+  Two graphs. (1) The identity/control-plane model behind CALL whisper.agents — tenant, key, agent, /128
+  identity, DNS names, DANE pin, policy, logs, ledger — read from the op:agent/op:list/op:logs return columns
+  on the control-plane page and the ledger docs (the OpenAPI declares no component schemas, so nothing here is
+  derived from $ref links). (2) WhisperGraph, the internet-infrastructure property graph queried through the
+  same endpoint: 41 node labels and 52 edge types per the provider (7.5B nodes / 39.6B edges, 2026-09), of
+  which the node types and relationships the provider enumerates in its llms.txt are listed. Live schema:
+  CALL db.labels(), CALL db.relationshipTypes(), CALL db.schema(), the MCP tool explain_schema and resource
+  whisper://schema/full.
+notation: relationships use has_one / has_many / belongs_to with the field or edge that carries the reference
+
+control_plane:
+  entities:
+  - {name: Tenant, key: tenant hash (t<hash>), description: 'The account. Owns keys, agents, identities, records and one resolver policy; everything under whisper.agents is scoped to the caller''s tenant. Published as the registrant entity in RDAP and as the zone t<hash>.agents.whisper.online.'}
+  - {name: ApiKey, key: whisper_live_..., description: 'Bearer credential with scopes (admin:dns, dns:logs:read, ...). A tenant key, or a per-agent key minted by op:register.'}
+  - {name: Agent, key: agent id (a<hex>), description: 'A registered agent: label, fqdn, address, created, state, contact, allocated_at, last_seen, live counters (dns_queries, dns_blocked, dns_nxdomain, packets, bytes_up/down, connections_active/total), nested-identity fields (parent, children, depth, roam) and key-material fields (identity_spki, tlsa_digest, sshfp_digest, key_source, key_binding, publication).'}
+  - {name: Identity, key: 'IPv6 /128 out of 2a04:2a01::/32', description: 'A routable address that IS the identity; states include active; released with op:identity {release:true}. Carries doh_url and resolver_ip.'}
+  - {name: DnsNames, description: 'Canonical forward name a<hex>.t<hash>.agents.whisper.online (AAAA), PTR in ip6.arpa, optional short member CNAME in the tenant''s flat namespace (member_published), TLSA _443._tcp.<fqdn> (DANE-EE 3 1 1), optional SMIMEA/SSHFP; all DNSSEC-signed with 60-second TTLs.'}
+  - {name: RdapRecord, key: handle a<hex>, description: 'RFC 9083 ip network object at rdap.whisper.online/ip/{address}: startAddress/endAddress, name, type "Whisper agent identity", status, country, registrant entity (tenant), registration event, forward/reverse links; also over WHOIS (RFC 3912) and FINGER.'}
+  - {name: Egress, description: 'A connect tier bound to the /128: socks5 / anyip (http_proxy + connection_string + socks5_endpoint) or wireguard (server_public_key, endpoint, dns, wireguard_config).'}
+  - {name: Policy, description: 'Per-tenant resolver policy: default allow|deny, block[], allow[] (<= 1000 combined), allow_sources[] (<= 64), plus read-only operational keys (mode, retention, east_west_on_fault, whale_approval, node_key_enrolment, calm.*).'}
+  - {name: LogEvent, description: 'kind dns | conn | alloc with ts, qname, qtype, rcode, decision, source, answer, latency_ms, agent, peer, bytes_up/down, duration_ms, reason, client_src, packets_up/down, parent_agent, nested.'}
+  - {name: LedgerLeaf, description: 'A salted opaque commitment in the RFC 6962 Merkle log (origin whisper.online/ledger/g2): identity issuance and revocation events, registered SCITT Signed Statements (POST /entries) and typed compliance attestations (POST /attest: control_id, verdict, evidence_hash, framework).'}
+  - {name: Checkpoint, description: 'C2SP signed note: origin, tree_size, root hash, Ed25519 signature (key_id d40e573a) and witness cosignatures (markovianprotocol.com/witness); OpenTimestamps anchor in Bitcoin.'}
+  - {name: StatusList, description: 'Signed revocation status-list (whisper.online/status) served beside the log; also the SSF status_list_endpoint.'}
+  relationships:
+  - {from: Tenant, to: ApiKey, kind: has_many}
+  - {from: Tenant, to: Agent, kind: has_many, via: 'op:list kind:agents'}
+  - {from: Tenant, to: Identity, kind: has_many, via: 'op:list kind:identities'}
+  - {from: Tenant, to: Policy, kind: has_one, via: 'op:policy'}
+  - {from: Agent, to: ApiKey, kind: has_one, via: 'api_key returned once by op:register'}
+  - {from: Agent, to: Identity, kind: has_one, via: address}
+  - {from: Agent, to: Agent, kind: belongs_to, via: 'parent (nested identity); children[]'}
+  - {from: Identity, to: DnsNames, kind: has_one, via: 'fqdn / ptr / member'}
+  - {from: Identity, to: RdapRecord, kind: has_one, via: handle}
+  - {from: Identity, to: Egress, kind: has_many, via: 'op:connect tier'}
+  - {from: Agent, to: LogEvent, kind: has_many, via: 'op:logs agent'}
+  - {from: Identity, to: LedgerLeaf, kind: has_many, via: 'rdap .../transparency events[] (issuance, revocation)'}
+  - {from: LedgerLeaf, to: Checkpoint, kind: belongs_to, via: 'inclusion proof -> tree_size/root'}
+  - {from: Checkpoint, to: StatusList, kind: has_one, via: '/checkpoint/status-list signed under the same log key'}
+
+whispergraph:
+  scale: '41 node labels, 52 edge types; 7.5B nodes and 39.6B edges (provider figures measured 2026-09-07); 134 threat feeds across 32 categories'
+  query_language: openCypher (read-only)
+  node_types:
+    dns_web: [HOSTNAME, TLD, TLD_OPERATOR, URL]
+    ip_routing: [IPV4, IPV6, PREFIX, ANNOUNCED_PREFIX, REGISTERED_PREFIX, ASN, ASN_NAME, RIR]
+    registration: [REGISTRAR, ORGANIZATION, EMAIL, PHONE]
+    geography: [COUNTRY, CITY]
+    threat_intel: [FEED_SOURCE, CATEGORY, ACTOR, TOR_RELAY]
+  relationships:
+    dns: [RESOLVES_TO, CHILD_OF, NAMESERVER_FOR, MAIL_FOR, ALIAS_OF]
+    spf: [SPF_INCLUDE, SPF_IP, SPF_A, SPF_MX, SPF_EXISTS, SPF_REDIRECT]
+    routing: [BELONGS_TO, ANNOUNCED_BY, ROUTES, BGP_NEIGHBOR, BGP_PATH]
+    registration: [HAS_REGISTRAR, REGISTERED_BY, HAS_EMAIL, HAS_PHONE, REGISTERED_TO_ENTITY, SAME_ORG_AS]
+    web: [LINKS_TO]
+    threat_intel: [LISTED_IN, TAGGED_AS, ATTRIBUTED_TO]
+    geography: [LOCATED_IN, HAS_COUNTRY]
+    identity: [DELEGATED_TO]
+  verdict_properties: [threatScore, threatLevel, isC2, isTor, isMalware, isPhishing, verdictScore, verdictLevel, verdictBlocking, rpkiStatus, roaAsn, roaMaxLength, isEgressRisk, egressClasses, rank]
+  note: 'Roughly two thirds of edge types are synthesized at query time by the virtual data plane; the provider says to read observed counts (db.relationshipTypes) over declared lists. Label names from other graph products (Domain, IpAddress, Certificate) are corrected or refused with a named replacement.'

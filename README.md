@@ -64,5 +64,11 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Whisper Security is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry) and added to the network as a stub for full-pipeline profiling.
-- https://whisper.online/
+Whisper Security (viaGraph B.V., Amsterdam; AS219419) gives AI agents a real, routable IPv6 /128 address as their identity — allocated from its own 2a04:2a01::/32, published in reverse DNS, RDAP/WHOIS and an RFC 6962 transparency log, and DANE-pinned in DNSSEC-signed DNS — plus per-agent egress, resolver policy and logs through one Cypher control verb, and the keyless WhisperGraph security graph. Published as an OpenAPI 3.1 contract, an A2A 1.0 agent card (37 skills), a hosted OAuth MCP server, a stdio MCP server inside the MIT `whisper` CLI, npm/PyPI SDKs and llms.txt.
+
+- Website: https://whisper.online/
+- Docs: https://whisper.online/docs
+- OpenAPI: https://whisper.online/openapi.json (saved verbatim under `openapi/`)
+- Agent card: https://whisper.online/.well-known/agent-card.json (graded under `a2a/`)
+- MCP: https://mcp.whisper.security (OAuth; RFC 9728) and `whisper mcp` (stdio)
+- Corporate site / WhisperGraph docs: https://www.whisper.security

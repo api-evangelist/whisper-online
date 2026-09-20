@@ -1,0 +1,76 @@
+generated: '2026-09-19'
+method: searched
+source: https://www.whisper.security/docs/ai/mcp/deprecation
+derived_from: openapi/whisper-online-openapi.json
+docs:
+- https://www.whisper.security/docs/ai/mcp/deprecation
+- https://www.whisper.security/docs/ai/mcp/changelog
+- https://www.whisper.security/docs/reference/changelog
+- https://whisper.online/docs/control-plane
+- https://whisper.online/docs/transparency
+- https://whisper.online/trust
+- https://whisper.online/terms
+- https://status.whisper.security
+versioning:
+  scheme: unversioned paths; one Cypher control verb that only grows additively; CLI/agent-card/MCP-registry share one semver line
+  current_version: 'OpenAPI info.version 1.1.0; whisper CLI, agent card and io.github.whisper-sec/whisper all 0.219.2 (2026-09-17); hosted MCP connector negotiates protocol revisions up to 2025-11-25'
+  spec_url: https://whisper.online/openapi.json
+  base_url: https://whisper.online
+  policy_published: true
+  policy_url: https://www.whisper.security/docs/ai/mcp/deprecation
+  additive_claim: 'Control plane: "every future op - the set has only ever grown additively, never a breaking change - costs you nothing new to integrate" (docs/control-plane). Verify with CALL whisper.version() for the engine and whisper --version for the CLI.'
+  ledger_generations: 'The transparency log is versioned by generation: checkpoints carry origin whisper.online/ledger/g2 today, with the earlier whisper.online/ledger generation still key-published in DNS (_whisper-ledger.whisper.online TXT lists both keys).'
+deprecation:
+  policy_published: true
+  policy_url: https://www.whisper.security/docs/ai/mcp/deprecation
+  scope: the MCP connector contract (tools, resources, prompts, response fields, accepted arguments); product and data-layer changes are logged separately
+  breaking_change_definition: [removing or renaming a tool, removing or renaming a response field, narrowing an accepted argument]
+  not_breaking: [a new tool/resource/prompt/field, a workflow entering or leaving the gallery, a figure moving, a data layer's coverage changing]
+  notice: 'Announced on the connector changelog BEFORE removal; the old shape keeps working alongside the new one where both can coexist (renamed fields published under both names, renamed tools answering under both); the overlap length is stated per change in the announcement; security withdrawals go without an overlap and are announced as such.'
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  documented_retirements:
+  - what: MCP tools submit_indicator and submit_feedback, and the mcp:write scope
+    retired: 2026-08
+    evidence: 'connector changelog 2026-08: "The connector became read-only, and it is not a default. submit_indicator and submit_feedback were removed along with the mcp:write scope."'
+  - what: MCP tools assess and walk
+    retired: 2026-08
+    evidence: 'connector changelog 2026-08: "assess and walk folded into explain_indicator and identify" — both remain callable as procedures (whisper.assess, whisper.walk) inside query.'
+  - what: legacy OAuth scope name mcp:query
+    status: still advertised, documented as legacy ("Ask for mcp:read")
+  - what: form-encoded q= body on the front door
+    status: 'legacy — "the older form-encoded style still works on the legacy graph.whisper.security host but not on the front door" graph.whisper.online (docs/graph-api)'
+  note: Zero of the 13 OpenAPI operations carry deprecated:true. The published policy governs the MCP connector; no equivalent page exists for the REST/Cypher surface beyond the additive-only statement.
+status_page:
+  url: https://status.whisper.security
+  provider: Better Stack
+  components: [Whisper Knowledge Graph, whisper.security, Whisper MCP server]
+  observed: 'All services are online — Last updated Sep 19, 2026 at 10:37pm UTC'
+  probed:
+  - {url: 'https://status.whisper.security', status: 200}
+  - {url: 'https://status.whisper.online', status: 0, note: 'no DNS / connection'}
+  - {url: 'https://whisper.online/status', status: 404}
+  live_signals:
+  - {url: 'https://menu.whisper.online/menu', note: 'the live catalogue of every service that is up right now, generated from the dispatch table'}
+  - {resource: 'whisper://stats', note: 'per-layer lastRefresh, ageSeconds and coverage OK / DEGRADED / EMPTY on the MCP connector'}
+  - {url: 'https://whisper.online/checkpoint', note: 'signed ledger checkpoint; X-Whisper-Ledger-Claim response header states the current transparency claim level'}
+sla:
+  free_tier: 'none — "The free tier carries no service-level commitment. Any service levels for paid plans are only those stated in a written agreement with us." (terms §10)'
+  paid: per written agreement only
+  abuse_and_revocation: 'Reports acknowledged within one business day; confirmed abuse is revoked, not rate-limited; agent records carry 60-second TTLs so a revoked identity decays from global DNS caches within a minute; the revocation lands in the signed status-list (trust page, "Abuse policy and revocation SLA")'
+  disclosure_timeline: 'typically up to 90 days, sooner for low-risk issues, longer by mutual agreement (disclosure-policy.txt)'
+  price_change_notice: at least 30 days, effective at next renewal (terms §7)
+  material_change_notice: reasonable notice where a change materially reduces documented functionality (terms §5)
+support:
+  email: support@whisper.security
+  docs: https://www.whisper.security/docs/reference/support
+  console_tickets: https://whisper.online/docs/account-and-keys (ticket form with type, product, subject, attachments)
+  include: [request URL and body, full response, X-Request-Id and X-Served-By, UTC time]
+changelogs:
+- {name: WhisperGraph product changelog, url: 'https://www.whisper.security/docs/reference/changelog', cadence: monthly sections (March-August 2026)}
+- {name: MCP connector changelog, url: 'https://www.whisper.security/docs/ai/mcp/changelog', cadence: monthly sections (June-September 2026)}
+- {name: whisper CLI releases, url: 'https://github.com/whisper-sec/whisper-cli/releases', cadence: 'multiple tags per day in mid-September 2026 (v0.216.1 ... v0.219.2); bodies are compare links only'}
+- {name: Splunk add-on changelog, url: 'https://www.whisper.security/docs/integrations/splunk/changelog'}
+- {name: Microsoft Sentinel solution release history, url: 'https://www.whisper.security/docs/integrations/sentinel/changelog'}

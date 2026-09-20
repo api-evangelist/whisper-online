@@ -1,0 +1,37 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/terms
+docs:
+- https://whisper.online/terms
+- https://www.whisper.security/faq
+- https://www.whisper.security/docs/ai/agent-signup
+- https://whisper.online/.well-known/agent-onboarding.json
+- https://www.whisper.security/llms.txt
+probed:
+- {url: 'https://www.whisper.security/pricing', status: 200, final_url: 'https://www.whisper.security/', note: 'redirects to the homepage — no pricing page is served'}
+- {url: 'https://www.whisper.security/pricing.md', status: 404}
+plan_count: 0
+currency: EUR
+model: free tier with fair-use limits; paid plans quoted at purchase or in a written order; enterprise (historical data, SIEM/SOAR, higher throughput, dedicated cloud, white-label, on-prem custody) via contact
+summary: >-
+  Whisper publishes no priced tiers. The FAQ says "Every account starts free ... See the pricing page for what
+  each plan includes", but /pricing on whisper.security redirects to the homepage and no tier names or prices
+  appear anywhere on whisper.online, whisper.security, the llms.txt files or the docs. What is published is the
+  shape: a free tier ("A free tier is available, subject to fair-use limits such as caps on the number of
+  Agents, requests, or traffic that we may adjust with notice", terms §7), paid plans "charged as stated at
+  purchase or in a written order", fees exclusive of taxes, and price changes with at least 30 days' notice
+  effective at the next renewal. The programmatic signup returns plan: "free" (agent-signup docs) or "trial"
+  (llms.txt example), and the console's Billing page "carries your plan, usage quota, and payment details".
+free_tier:
+  signup: email + 6-digit code, no card, no CAPTCHA, no human
+  includes: [API, Console, MCP access, graph reads, agent registration, egress, keyless verification for everyone]
+  limits:
+    requests: 10 per minute, 500 per day (trial_limits in agent-onboarding.json)
+    agents: 'default cap of 5 concurrently-registered agents and 5 standing /128 identities (docs/control-plane); the onboarding manifest and llms.txt state max_agents 1000 — recorded as a disagreement between the provider''s own sources; "raised on request"'
+    graph_rows: keyless ceiling of 100 rows per query; a key lifts it
+  sla: none (terms §10)
+paid:
+  how: contact https://www.whisper.security/contact-us; "Teams needing historical context, SIEM and SOAR integrations, higher throughput, a dedicated cloud or a white-label deployment should talk to us"
+  notice: price changes with >= 30 days' notice at next renewal
+  three_deployment_shapes: ['Move in (hosted under agents.whisper.online on AS219419)', 'Your name on the door (bring your own domain, DNSSEC-delegated; network and registry stay Whisper''s)', 'Your own land (the whole stack as one binary on your network and address space; "we build it with you")']
+plans: []

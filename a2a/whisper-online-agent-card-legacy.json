@@ -1,0 +1,393 @@
+{
+  "protocolVersion" : "0.3.0",
+  "name" : "Whisper",
+  "description" : "Give an AI agent a stable, routable IPv6 address of its own and egress that anyone can verify from outside. Use this when you need a fixed IP your traffic actually leaves from, an identity another service can check independently by reverse DNS and RDAP rather than taking your word for it, or control over what an agent is allowed to reach and a record of what it did. It also answers security questions about any domain, address or file hash from the Whisper graph, with no account at all. The address space is AS219419, which we run; an email address alone is enough to get a key.",
+  "url" : "https://whisper.online/a2a",
+  "preferredTransport" : "JSONRPC",
+  "version" : "0.219.2",
+  "documentationUrl" : "https://whisper.online/llms-full.txt",
+  "iconUrl" : "https://whisper.online/logo.png",
+  "provider" : {
+    "organization" : "Whisper Security",
+    "url" : "https://whisper.online"
+  },
+  "capabilities" : {
+    "streaming" : false,
+    "pushNotifications" : false,
+    "stateTransitionHistory" : false
+  },
+  "securitySchemes" : {
+    "whisperApiKey" : {
+      "type" : "apiKey",
+      "in" : "header",
+      "name" : "X-API-Key",
+      "description" : "Your Whisper API key. Obtain one with the keyless \"signup\" skill."
+    }
+  },
+  "supportsAuthenticatedExtendedCard" : false,
+  "defaultInputModes" : [ "text/plain", "application/json" ],
+  "defaultOutputModes" : [ "application/json", "text/plain" ],
+  "skills" : [ {
+    "id" : "signup",
+    "name" : "Get a Whisper API key",
+    "description" : "Start or complete Whisper signup from an email address alone, and receive an API key that unlocks the provisioning and governance skills on this card. Send {\"email\":\"...\"} to start; a six-digit code arrives by email; send {\"signup_id\":\"...\",\"code\":\"123456\"} to complete. No human step, no account needed first.",
+    "tags" : [ "onboarding", "signup", "credentials", "keyless" ],
+    "examples" : [ "{\"skill\":\"signup\",\"input\":{\"email\":\"agent@example.com\"}}", "{\"skill\":\"signup\",\"input\":{\"signup_id\":\"...\",\"code\":\"123456\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "identify",
+    "name" : "identify",
+    "description" : "Identify an indicator (domain, IP, hash, …) against the graph. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"identify\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "assess",
+    "name" : "assess",
+    "description" : "Assess the risk/policy posture of one or more indicators. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"assess\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "walk",
+    "name" : "walk",
+    "description" : "Walk the graph from an indicator across its relationships. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"walk\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "watch",
+    "name" : "watch",
+    "description" : "Watch an indicator for change/activity over time. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"watch\",\"input\":{\"action\":\"list\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "submit",
+    "name" : "submit",
+    "description" : "Submit an observation/claim into the graph. Writes to the graph, so it needs your API key: an anonymous claim would not be attributable.",
+    "tags" : [ "graph", "cognition", "api-key" ],
+    "examples" : [ "{\"skill\":\"submit\",\"input\":{\"host\":\"example.com\",\"claim\":\"benign\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "explain",
+    "name" : "explain",
+    "description" : "Explain a verdict - the evidence and reasoning behind it. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"explain\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "variants",
+    "name" : "variants",
+    "description" : "Enumerate variants/permutations of an indicator. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"variants\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "origins",
+    "name" : "origins",
+    "description" : "Trace the origins/provenance of an indicator. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"origins\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "history",
+    "name" : "history",
+    "description" : "Historical records for an indicator (incl. whois/bgp history). Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"history\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "lookupTlsFingerprint",
+    "name" : "lookupTlsFingerprint",
+    "description" : "Look up a TLS (JA3/JA4) fingerprint in the graph. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"lookupTlsFingerprint\",\"input\":\"ja3:771,4865-4866-4867\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "lookupTorRelay",
+    "name" : "lookupTorRelay",
+    "description" : "Look up Tor relay metadata for an address. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"lookupTorRelay\",\"input\":\"185.220.101.1\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "asset",
+    "name" : "asset",
+    "description" : "Resolve an asset and its catalog of attributes. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"asset\",\"input\":\"example.com\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "threatintel",
+    "name" : "threatintel",
+    "description" : "Threat-intelligence indicator family (candidate apex/CDN/hosting). A family verb: name the sub-verb as \"sub\" alongside the input. Sub-verbs: candidateCdnApex, candidateMultiTenantApex, candidateSharedHostingIp.. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless", "family" ],
+    "examples" : [ "{\"skill\":\"threatintel\",\"sub\":\"candidateCdnApex\",\"input\":5}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "psl",
+    "name" : "psl",
+    "description" : "Public-suffix-list family (tld-plus-one, is-public-suffix, affiliation). A family verb: name the sub-verb as \"sub\" alongside the input. Sub-verbs: tldPlusOne, isPublicSuffix, affiliation.. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless", "family" ],
+    "examples" : [ "{\"skill\":\"psl\",\"sub\":\"tldPlusOne\",\"input\":\"a.b.example.co.uk\"}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "topAsnsByPrefixCount",
+    "name" : "topAsnsByPrefixCount",
+    "description" : "Top ASNs ranked by announced-prefix count. Answers without an API key.",
+    "tags" : [ "graph", "cognition", "keyless" ],
+    "examples" : [ "{\"skill\":\"topAsnsByPrefixCount\",\"input\":10}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ]
+  }, {
+    "id" : "agents.agent",
+    "name" : "agents: agent",
+    "description" : "The agent operation on the Whisper control plane, served as CALL whisper.agents({op:'agent', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "agent", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.agent\",\"input\":{\"agent\":\"ag_1f4c0b\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.alert",
+    "name" : "agents: alert",
+    "description" : "The alert operation on the Whisper control plane, served as CALL whisper.agents({op:'alert', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "alert", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.alert\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.connect",
+    "name" : "agents: connect",
+    "description" : "The connect operation on the Whisper control plane, served as CALL whisper.agents({op:'connect', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "connect", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.connect\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.disconnect",
+    "name" : "agents: disconnect",
+    "description" : "The disconnect operation on the Whisper control plane, served as CALL whisper.agents({op:'disconnect', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "disconnect", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.disconnect\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.domain",
+    "name" : "agents: domain",
+    "description" : "The domain operation on the Whisper control plane, served as CALL whisper.agents({op:'domain', args:{...}}). Requires your Whisper API key.",
+    "tags" : [ "control-plane", "agents", "domain", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.domain\",\"input\":{\"name\":\"example.com\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.firewall",
+    "name" : "agents: firewall",
+    "description" : "The firewall operation on the Whisper control plane, served as CALL whisper.agents({op:'firewall', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "firewall", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.firewall\",\"input\":{\"agent\":\"ag_1f4c0b\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.history",
+    "name" : "agents: history",
+    "description" : "The history operation on the Whisper control plane, served as CALL whisper.agents({op:'history', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "history", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.history\",\"input\":{\"address\":\"2a04:2a01:f6d7:1ffe:a0be:ba8a:c355:bba1\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.host",
+    "name" : "agents: host",
+    "description" : "The host operation on the Whisper control plane, served as CALL whisper.agents({op:'host', args:{...}}). Requires your Whisper API key.",
+    "tags" : [ "control-plane", "agents", "host", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.host\",\"input\":{\"name\":\"my-host\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.identity",
+    "name" : "agents: identity",
+    "description" : "The identity operation on the Whisper control plane, served as CALL whisper.agents({op:'identity', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "identity", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.identity\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.list",
+    "name" : "agents: list",
+    "description" : "The list operation on the Whisper control plane, served as CALL whisper.agents({op:'list', args:{...}}). Requires your Whisper API key.",
+    "tags" : [ "control-plane", "agents", "list", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.list\",\"input\":{\"kind\":\"agents\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.logs",
+    "name" : "agents: logs",
+    "description" : "The logs operation on the Whisper control plane, served as CALL whisper.agents({op:'logs', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "logs", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.logs\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.lookups",
+    "name" : "agents: lookups",
+    "description" : "The lookups operation on the Whisper control plane, served as CALL whisper.agents({op:'lookups', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "lookups", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.lookups\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.partner",
+    "name" : "agents: partner",
+    "description" : "The partner operation on the Whisper control plane, served as CALL whisper.agents({op:'partner', args:{...}}). Requires your Whisper API key. It is gated on partner authority rather than on arguments: without it the call is refused whatever you pass.",
+    "tags" : [ "control-plane", "agents", "partner", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.partner\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.policy",
+    "name" : "agents: policy",
+    "description" : "The policy operation on the Whisper control plane, served as CALL whisper.agents({op:'policy', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "policy", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.policy\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.register",
+    "name" : "agents: register",
+    "description" : "The register operation on the Whisper control plane, served as CALL whisper.agents({op:'register', args:{...}}). Requires your Whisper API key.",
+    "tags" : [ "control-plane", "agents", "register", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.register\",\"input\":{\"label\":\"my-first-agent\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.rename",
+    "name" : "agents: rename",
+    "description" : "The rename operation on the Whisper control plane, served as CALL whisper.agents({op:'rename', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "rename", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.rename\",\"input\":{\"agent\":\"ag_1f4c0b\",\"label\":\"renamed-agent\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.resolver",
+    "name" : "agents: resolver",
+    "description" : "The resolver operation on the Whisper control plane, served as CALL whisper.agents({op:'resolver', args:{...}}). Requires your Whisper API key. With no arguments it describes what you already have, so the example below runs as published.",
+    "tags" : [ "control-plane", "agents", "resolver", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.resolver\",\"input\":{}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.revoke",
+    "name" : "agents: revoke",
+    "description" : "The revoke operation on the Whisper control plane, served as CALL whisper.agents({op:'revoke', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "revoke", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.revoke\",\"input\":{\"agent\":\"ag_1f4c0b\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.task",
+    "name" : "agents: task",
+    "description" : "The task operation on the Whisper control plane, served as CALL whisper.agents({op:'task', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "task", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.task\",\"input\":{\"agent\":\"ag_1f4c0b\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.token",
+    "name" : "agents: token",
+    "description" : "The token operation on the Whisper control plane, served as CALL whisper.agents({op:'token', args:{...}}). Requires your Whisper API key. The identifier in the example is a placeholder for one of YOUR agents: list them with the \"agents.list\" skill and {\"kind\":\"agents\"}.",
+    "tags" : [ "control-plane", "agents", "token", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.token\",\"input\":{\"agent\":\"ag_1f4c0b\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  }, {
+    "id" : "agents.verify",
+    "name" : "agents: verify",
+    "description" : "The verify operation on the Whisper control plane, served as CALL whisper.agents({op:'verify', args:{...}}). Requires your Whisper API key.",
+    "tags" : [ "control-plane", "agents", "verify", "api-key" ],
+    "examples" : [ "{\"skill\":\"agents.verify\",\"input\":{\"name\":\"example.com\"}}" ],
+    "inputModes" : [ "text/plain", "application/json" ],
+    "outputModes" : [ "application/json" ],
+    "security" : [ {
+      "whisperApiKey" : [ ]
+    } ]
+  } ]
+}

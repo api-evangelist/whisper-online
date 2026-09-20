@@ -1,0 +1,144 @@
+generated: '2026-09-19'
+method: probed
+source: >-
+  Live probes on 2026-09-19 of whisper.online, rdap.whisper.online, graph.whisper.online, mcp.whisper.security,
+  whois.whisper.online (TCP 43) and DNS (1.1.1.1 with +dnssec), cross-checked against the OpenAPI
+  info.description standards table (openapi/whisper-online-openapi.json), the compliance coverage map at
+  https://whisper.online/docs/compliance and the privacy policy. Each entry says whether the claim was
+  verified by a fetch or only read in the docs.
+standards:
+- id: rfc9116-security-txt
+  conforms: true
+  verified: true
+  evidence: 'GET https://whisper.online/.well-known/security.txt -> 200 text/plain, PGP-signed, Contact/Encryption/Policy/Acknowledgments/Canonical/Expires 2027-09-17; separate files on mcp.whisper.security, www.whisper.security and as219419.net.'
+- id: rfc8414-oauth-authorization-server-metadata
+  conforms: true
+  verified: true
+  evidence: 'GET https://mcp.whisper.security/.well-known/oauth-authorization-server -> 200 application/json (issuer, authorization/token/registration/revocation endpoints, scopes_supported, code_challenge_methods_supported [S256]).'
+- id: rfc9728-oauth-protected-resource
+  conforms: true
+  verified: true
+  evidence: 'GET https://mcp.whisper.security/.well-known/oauth-protected-resource -> 200 (resource, authorization_servers, scopes_supported, bearer_methods_supported [header]); the 401 challenge names it in WWW-Authenticate resource_metadata.'
+- id: oauth2-authorization-code-pkce
+  conforms: true
+  verified: true
+  evidence: 'grant_types_supported [authorization_code, refresh_token], code_challenge_methods_supported [S256], token_endpoint_auth_methods_supported [none] in the RFC 8414 document; docs state PKCE S256 and public clients.'
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  verified: true
+  evidence: 'registration_endpoint https://mcp.whisper.security/oauth/register in the RFC 8414 document; client_id_metadata_document_supported true.'
+- id: oidc
+  conforms: false
+  verified: true
+  evidence: '/.well-known/openid-configuration -> 404 on whisper.online, www.whisper.online, mcp.whisper.security; 403 on graph/rdap; the console host redirects every path to a sign-in page. Sign-in is delegated to Clerk (privacy policy), not exposed as an OIDC provider.'
+- id: rfc9457-problem-details
+  conforms: true
+  verified: true
+  evidence: 'POST https://graph.whisper.online/api/query with malformed Cypher -> 400 application/problem+json {type https://whisper.security/errors/query-error, title, status, detail, instance, timestamp, suggestions[]} (the docs cite RFC 7807; the shape is the same as RFC 9457). whisper.agents envelope errors and JSON-RPC errors are separate shapes.'
+- id: a2a-1.0
+  conforms: true
+  verified: true
+  evidence: 'GET https://whisper.online/.well-known/agent-card.json -> 200 application/json, 1.0-shaped card (supportedInterfaces[].protocolVersion "1.0", protocolBinding JSONRPC, capabilities object, 37 skills); a 0.3.0-shaped twin at /.well-known/agent.json; GET /a2a -> 400 JSON-RPC -32600 naming the card. Graded in a2a/whisper-online-a2a.yml.'
+- id: mcp
+  conforms: true
+  verified: true
+  evidence: 'https://mcp.whisper.security answers MCP over Streamable HTTP behind OAuth (401 with RFC 9728 challenge on tools/list and initialize); /.well-known/mcp.json and /.well-known/mcp-manifest.json -> 200; MCP registry entries io.github.whisper-sec/whisper-graph (remote) and io.github.whisper-sec/whisper (stdio, OCI).'
+- id: json-rpc-2.0
+  conforms: true
+  verified: true
+  evidence: 'GET https://whisper.online/a2a -> {"jsonrpc":"2.0","id":null,"error":{"code":-32600,...}}; the MCP server and the local whisper mcp are JSON-RPC 2.0 per the docs.'
+- id: rdap-rfc9083
+  conforms: true
+  verified: true
+  evidence: 'GET https://rdap.whisper.online/ip/2a04:2a01:b69a:6717:e3b0:51ff:3bf7:f478 -> 200 application/rdap+json, rdapConformance [rdap_level_0], objectClassName "ip network", entities/events/links; /help and / return RDAP notices.'
+- id: whois-rfc3912
+  conforms: true
+  verified: true
+  evidence: 'whois -h whois.whisper.online 2a04:2a01:b69a:6717:e3b0:51ff:3bf7:f478 answered over TCP 43 with inet6num/netname/agent/tenant/fqdn/reverse/status/allocated/country and a pointer to RDAP as canonical.'
+- id: dnssec
+  conforms: true
+  verified: true
+  evidence: 'dig +dnssec AAAA ae3b051ff3bf7f478.tdc38e7c55bad3306a92b830f9bb1e4f9.agents.whisper.online @1.1.1.1 returned flags qr rd ra ad (AD set); DS 50855 13 2 published for whisper.online; probe-domain-security.py records dnssec true.'
+- id: dane-ee-rfc6698
+  conforms: true
+  verified: true
+  evidence: 'TLSA _443._tcp.<first-resident fqdn> = 3 1 1 9EC1EF18...422BB47D under DNSSEC; /verify-identity reports dane_ok true, served_leaf_matches true, profile "DANE-EE 3 1 1".'
+- id: fcrdns
+  conforms: true
+  verified: true
+  evidence: 'dig -x 2a04:2a01:b69a:6717:e3b0:51ff:3bf7:f478 -> ae3b051ff3bf7f478.tdc38e7c55bad3306a92b830f9bb1e4f9.agents.whisper.online. and the AAAA of that name -> the same address.'
+- id: rfc6962-merkle-transparency-log
+  conforms: true
+  verified: true
+  evidence: 'GET /checkpoint -> C2SP signed note (origin whisper.online/ledger/g2, tree size 325497, root, Ed25519 signature + markovianprotocol.com/witness cosignature); /checkpoint/key, /inclusion, /consistency, /tile/{level}/{index} and /checkpoint/status-list are in the OpenAPI and answer live.'
+- id: c2sp-checkpoint-and-tlog-tiles
+  conforms: true
+  verified: true
+  evidence: 'Checkpoint format is the C2SP note; tiles at /tile/{level}/{index} (openapi ledgerTile); docs name C2SP tlog-witness cosigning.'
+- id: opentimestamps
+  conforms: true
+  verified: true
+  evidence: 'GET /checkpoint/ots/latest-confirmed -> 200 {tree_size 324142, bitcoin_block 967728, stamped_at/confirmed_at, ots path}.'
+- id: scitt-rfc9943-rfc9942
+  conforms: true
+  verified: partial
+  evidence: 'GET /.well-known/scitt-keys -> 200 application/cbor (49 bytes, the receipt-signing COSE key set); /entries/<leaf> COSE receipts and POST /entries are documented (docs/scitt-receipts, docs/register-a-statement) and named in the OpenAPI standards table; the SCRAPI transport is an IETF draft per the provider. A receipt was not fetched.'
+- id: openid-ssf-caep
+  conforms: true
+  verified: true
+  evidence: 'GET /.well-known/ssf-configuration -> 200 {spec_version 1_0, issuer https://whisper.online, jwks_uri, delivery_methods_supported [urn:ietf:rfc:8936], events_supported [caep credential-change, session-revoked], poll_endpoint, status_list_endpoint}.'
+- id: rfc9092-geofeed
+  conforms: true
+  verified: true
+  evidence: 'GET /.well-known/geofeed -> 200 text/csv (35,891 bytes) — per-/128 prefix,ISO-3166 rows; the compliance page notes the jurisdiction column is not yet populated (ZZ).'
+- id: rfc8484-dns-over-https
+  conforms: true
+  verified: false
+  evidence: 'Claimed in the OpenAPI standards table (/dns-query, /doh on the resolver hosts) and the privacy policy; per-agent doh_url is returned by op:register. Not probed — resolver hosts are per-tenant.'
+- id: rpki-roa-and-manrs
+  conforms: true
+  verified: false
+  evidence: 'llms.txt: "AS219419, IPv6-only, RPKI-signed, MANRS-compliant", announcing 2a04:2a01::/32. Not independently verified here (RIPEstat link on the corporate site: https://stat.ripe.net/AS219419).'
+- id: opencypher
+  conforms: true
+  verified: true
+  evidence: 'POST /api/query executes openCypher (CALL whisper.identify(...) returned columns/rows/statistics live); the docs name openCypher and list supported clauses.'
+- id: pagination
+  conforms: true
+  verified: false
+  evidence: 'Cypher SKIP/LIMIT with paging advisories and a keyless 100-row ceiling on the graph; count-first page/pageSize on the MCP query tool; opaque cursor on whisper.export. The control plane deliberately has no pagination (single result array).'
+- id: idempotency
+  conforms: false
+  verified: true
+  evidence: No Idempotency-Key or equivalent replay-protection mechanism is documented anywhere; see conventions/whisper-online-conventions.yml (coverage none).
+- id: gdpr
+  conforms: true
+  verified: true
+  evidence: 'Privacy policy names viaGraph B.V. (Amsterdam) as controller, legal bases Art. 6(1)(a)(b)(c)(f), rights Art. 15-21 answered within one month, supervisory authority Autoriteit Persoonsgegevens, Chapter V safeguards (adequacy / SCCs), crypto-shred erasure for ledger entries; the corporate policy (whisper.security, updated 2026-09-05) carries a named sub-processor table.'
+- id: rfc8615-well-known-uris
+  conforms: true
+  verified: true
+  evidence: 'Discovery documents under /.well-known/ on the platform, MCP and network hosts (security.txt, agent-card.json, agent.json, agent-onboarding.json, ssf-configuration, scitt-keys, geofeed, skills/index.json, whisper-ca.json, mcp.json, mcp-manifest.json, oauth-*).'
+- id: soc2-iso27001-certification
+  conforms: false
+  verified: true
+  evidence: 'The provider explicitly does not claim certification: the compliance page grades "Certification / makes you compliant" as DO-NOT-CLAIM ("an auditor certifies, we never do") and maps its controls as DIRECT-ADDITIVE / COMPLEMENTARY inputs to ISO/IEC 27001:2022, PCI DSS 4.0, HIPAA, GDPR, DORA, NIS2, EU AI Act, ISO/IEC 42001 and NIST AI RMF. No Compliance pointer is emitted for that reason.'
+domain_standards:
+  note: >-
+    Contract-declared domain standards for the provider's market (registry / network identity / agent
+    infrastructure). Each points at where the contract itself declares it, not at a marketing claim.
+  declared:
+  - {id: rdap-rfc9083, where: 'openapi info.description standards table row "RDAP | https://rdap.whisper.online/ip/{address} | RFC 9083 / 7480"; live application/rdap+json with rdapConformance', verified: true}
+  - {id: whois-rfc3912, where: 'llms.txt proof 5; live TCP 43 answer', verified: true}
+  - {id: rfc8484-dns-over-https, where: 'openapi info.description standards table row "DNS over HTTPS | /dns-query, /doh"', verified: false}
+  - {id: rfc9092-geofeed, where: 'openapi standards table + live /.well-known/geofeed', verified: true}
+  - {id: openid-ssf-caep, where: 'openapi standards table + live /.well-known/ssf-configuration', verified: true}
+  - {id: scitt, where: 'openapi standards table (/.well-known/scitt-keys, /entries) + live scitt-keys', verified: partial}
+  - {id: a2a-1.0, where: 'openapi standards table + operation agentCard + live card', verified: true}
+  - {id: mcp, where: 'openapi standards table row "MCP server | https://mcp.whisper.security"', verified: true}
+  - {id: rfc6962-c2sp-transparency, where: 'openapi operations ledgerCheckpoint / ledgerTile / ledgerInclusion / ledgerConsistency; live checkpoint', verified: true}
+  - {id: rfc9116-security-txt, where: 'openapi standards table + live file', verified: true}
+regulatory_cross_reference:
+  compliance_page: https://whisper.online/docs/compliance
+  frameworks_mapped: [ISO/IEC 27001:2022, PCI DSS 4.0, HIPAA Security Rule, GDPR, DORA, NIS2, EU AI Act Art. 12/15/50, ISO/IEC 42001, NIST AI RMF, FDA 524B, 3GPP TS 33.310, IEEE 2030.5 CSIP]
+  attestation_api: 'POST /attest commits a typed control attestation ({control_id, verdict, evidence_hash, framework}) as a ledger leaf with a SCITT receipt (docs/compliance §5); keyed, outside the OpenAPI.'

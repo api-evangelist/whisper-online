@@ -1,0 +1,502 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Whisper",
+    "summary": "Identity and safe egress for AI agents, and the security graph behind it.",
+    "description": "Every endpoint described here was exercised live before this document was written.\n\n**This document describes only the surfaces that have no other machine-readable spec.** Several of the most important things Whisper serves are defined by somebody else's standard, and restating a standard in our own words creates a second, staler copy of it. Those are listed under `externalDocs` and in the table below, with a pointer to the specification rather than a paraphrase:\n\n| Surface | Where | Specification |\n| --- | --- | --- |\n| DNS over HTTPS | `/dns-query`, `/doh` on the resolver hosts | RFC 8484 |\n| RDAP | `https://rdap.whisper.online/ip/{address}` | RFC 9083 / 7480 |\n| Geofeed | `/.well-known/geofeed` | RFC 9092 |\n| Security contact | `/.well-known/security.txt` | RFC 9116 |\n| Shared signals (CAEP/SSF) | `/.well-known/ssf-configuration` | OpenID SSF |\n| Transparency statements | `/.well-known/scitt-keys`, `/entries` | IETF SCITT |\n| Agent Card | `/.well-known/agent-card.json` | A2A 1.0 |\n| MCP server | `https://mcp.whisper.security` | Model Context Protocol |\n\n**The control plane is deliberately ONE endpoint.** Provisioning and governance do not get a verb each: they ride a single Cypher call, `POST /api/query` with `CALL whisper.agents({op:'...', args:{...}})`. That is the architecture, not a shortcut in this document, and it means a new capability needs no new URL to discover.\n\nWhat is left, and what this file actually specifies, is the keyless half that exists so someone who has never heard of us can check our claims with no account and no client: verification, the append-only identity ledger, and the live service catalog.",
+    "version": "1.1.0",
+    "contact": {
+      "name": "Whisper Security",
+      "url": "https://whisper.online"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://whisper.online/terms"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://whisper.online",
+      "description": "The main site, verification, and the ledger"
+    }
+  ],
+  "externalDocs": {
+    "description": "The full catalog, written for agents",
+    "url": "https://whisper.online/llms-full.txt"
+  },
+  "components": {
+    "securitySchemes": {
+      "whisperApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json."
+      }
+    }
+  },
+  "paths": {
+    "/api/query": {
+      "servers": [
+        {
+          "url": "https://graph.whisper.online",
+          "description": "The control plane and graph front door"
+        }
+      ],
+      "post": {
+        "summary": "The one Cypher endpoint: graph reads, and the entire control plane",
+        "description": "Keyless for graph reads (`CALL whisper.assess($a)`, `identify`, `walk`, `origins`, ...). With `X-API-Key` the same endpoint is the control plane: `CALL whisper.agents({op:'register'|'identity'|'connect'|'policy'|'logs'|'revoke'|'list'|..., args:{...}})`. Always bind values as parameters; never concatenate them into the query text.",
+        "operationId": "query",
+        "security": [
+          {},
+          {
+            "whisperApiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "parameters": {
+                    "type": "object"
+                  },
+                  "timeout": {
+                    "type": "integer",
+                    "description": "Milliseconds."
+                  }
+                }
+              },
+              "examples": {
+                "keyless graph read": {
+                  "value": {
+                    "query": "CALL whisper.assess($a)",
+                    "parameters": {
+                      "a": "example.com"
+                    }
+                  }
+                },
+                "keyed control call": {
+                  "value": {
+                    "query": "CALL whisper.agents($a)",
+                    "parameters": {
+                      "a": {
+                        "op": "register",
+                        "args": {
+                          "label": "my-agent"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "columns / rows / statistics.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "columns": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "statistics": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed query, bad arguments, or an op outside the allowlist."
+          },
+          "403": {
+            "description": "The key lacks the scope the op requires."
+          }
+        }
+      }
+    },
+    "/a2a": {
+      "post": {
+        "summary": "A2A JSON-RPC endpoint",
+        "description": "JSON-RPC 2.0, A2A 1.0. The method is `SendMessage`. Keyless skills answer with no credential; control skills need `X-API-Key` and are a binding over the same Cypher call above, not a second implementation of it. The Agent Card at /.well-known/agent-card.json lists every skill.",
+        "operationId": "a2aSendMessage",
+        "security": [
+          {},
+          {
+            "whisperApiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "jsonrpc",
+                  "method"
+                ],
+                "properties": {
+                  "jsonrpc": {
+                    "type": "string",
+                    "const": "2.0"
+                  },
+                  "id": {},
+                  "method": {
+                    "type": "string",
+                    "example": "SendMessage"
+                  },
+                  "params": {
+                    "type": "object"
+                  }
+                }
+              },
+              "example": {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "SendMessage",
+                "params": {
+                  "message": {
+                    "messageId": "m1",
+                    "role": "ROLE_USER",
+                    "parts": [
+                      {
+                        "data": {
+                          "skill": "assess",
+                          "input": "example.com"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A JSON-RPC result, or a JSON-RPC error object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unparseable, or not a JSON-RPC request."
+          }
+        }
+      }
+    },
+    "/verify-identity": {
+      "get": {
+        "summary": "Verify an address is a real Whisper agent identity",
+        "description": "Keyless. Answers honestly for an address that is not, or is no longer, allocated rather than inventing a record.",
+        "operationId": "verifyIdentity",
+        "security": [],
+        "parameters": [
+          {
+            "name": "address",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2a04:2a01:aeee:42b6:41cc:e09:c971:41a1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The verdict and its evidence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "is_whisper_agent": {
+                      "type": "boolean"
+                    },
+                    "evidence": {
+                      "type": "object"
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No address given."
+          }
+        }
+      }
+    },
+    "/checkpoint": {
+      "get": {
+        "summary": "Signed checkpoint of the identity transparency ledger",
+        "operationId": "ledgerCheckpoint",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "description": "Keyless. A signed note in the C2SP checkpoint format: origin, tree size, root hash, signature."
+      }
+    },
+    "/checkpoint/key": {
+      "get": {
+        "summary": "The public key the checkpoint is signed with",
+        "operationId": "ledgerCheckpointKey",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "description": "Keyless, so the signature above can be verified without trusting this API."
+      }
+    },
+    "/checkpoint/status-list": {
+      "get": {
+        "summary": "Revocation status list for issued identities",
+        "operationId": "ledgerStatusList",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checkpoint/ots/latest-confirmed": {
+      "get": {
+        "summary": "Latest OpenTimestamps-confirmed checkpoint",
+        "operationId": "ledgerOtsLatestConfirmed",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Keyless. Anchors the ledger in an external timestamp so freshness does not rest on our word."
+      }
+    },
+    "/tile/{level}/{index}": {
+      "get": {
+        "summary": "A Merkle tile of the ledger",
+        "operationId": "ledgerTile",
+        "security": [],
+        "description": "Keyless. Tiles let a verifier reconstruct and check the tree itself.",
+        "parameters": [
+          {
+            "name": "level",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 0
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tile bytes.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inclusion": {
+      "get": {
+        "summary": "Inclusion proof for one ledger leaf",
+        "operationId": "ledgerInclusion",
+        "security": [],
+        "description": "Keyless. Proves a specific identity statement is in the tree the checkpoint commits to.",
+        "parameters": [
+          {
+            "name": "leaf",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "A leaf index (0 <= N < tree_size), or a 64-hex statement digest.",
+            "example": "0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The proof.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or malformed leaf."
+          }
+        }
+      }
+    },
+    "/consistency": {
+      "get": {
+        "summary": "Consistency proof between two checkpoints",
+        "operationId": "ledgerConsistency",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Keyless. Proves the ledger is append-only: an earlier tree is a prefix of a later one."
+      }
+    },
+    "/menu": {
+      "get": {
+        "summary": "Every service that is live right now",
+        "operationId": "menu",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Generated from the same canonical list the code dispatches from, so it cannot describe a verb we do not serve. Queried from inside your own tunnel it answers with your personalized URLs."
+      },
+      "servers": [
+        {
+          "url": "https://menu.whisper.online",
+          "description": "The live service catalog"
+        }
+      ]
+    },
+    "/.well-known/agent-card.json": {
+      "get": {
+        "summary": "A2A Agent Card",
+        "operationId": "agentCard",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Every skill, which half is keyless, and the JSON-RPC endpoint that serves them."
+      }
+    },
+    "/.well-known/agent-onboarding.json": {
+      "get": {
+        "summary": "Machine-readable onboarding manifest",
+        "operationId": "agentOnboarding",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "The structured form of the journey from an email address to a working, routable identity."
+      }
+    }
+  }
+}

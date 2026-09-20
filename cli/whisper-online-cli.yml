@@ -1,0 +1,80 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/docs/cli
+docs:
+- https://whisper.online/docs/cli
+- https://whisper.online/docs/install
+- https://whisper.online/docs/mcp
+- https://whisper.online/llms.txt
+- https://www.whisper.security/docs/cli
+- https://github.com/whisper-sec/whisper-cli
+description: >-
+  `whisper` is a single MIT-licensed, statically-linked, cross-compiled Go binary (github.com/whisper-sec/whisper-cli,
+  v0.219.2 on 2026-09-17) that is the canonical client for the control plane, the keyless verifier, the local
+  egress proxy, the endpoint sensor, the whalenet fleet shell, and a stdio MCP server. Every command is documented
+  as a thin wrapper over one public DNS/HTTP check or the one control-plane verb CALL whisper.agents; the
+  control-plane page names internal/client/client.go, cypher.go and envelope.go as the reference implementation.
+  Every release artifact ships a .sha256 and a detached PGP .asc signature (key "Whisper Security, AS219419"
+  <security@whisper.security>). The package itself is catalogued in packages/whisper-online-packages.yml.
+repo: https://github.com/whisper-sec/whisper-cli
+license: MIT
+version: 0.219.2
+install:
+  script: curl -fsSL https://get.whisper.online | sh
+  homebrew: brew install whisper-sec/tap/whisper
+  scoop: scoop bucket add whisper https://github.com/whisper-sec/scoop-bucket && scoop install whisper
+  apt: 'deb [signed-by=/usr/share/keyrings/whisper.asc] https://get.whisper.online/deb stable main  -> sudo apt install whisper'
+  dnf: 'baseurl=https://get.whisper.online/rpm (gpgkey get.whisper.online/whisper.gpg) -> sudo dnf install whisper'
+  copr: sudo dnf copr enable whisper-sec/whisper && sudo dnf install whisper
+  apk: 'https://get.whisper.online/apk (key whisper-apk.rsa.pub) -> sudo apk add whisper'
+  go: go install github.com/whisper-sec/whisper-cli/cmd/whisper@latest
+  mise: mise use -g "github:whisper-sec/whisper-cli[exe=whisper]"
+  aqua: aqua g -i whisper-sec/whisper-cli && aqua i
+  docker: docker run --rm ghcr.io/whisper-sec/whisper --version
+  github_action: 'uses: whisper-sec/setup-whisper@v1'
+  nix: 'nixpkgs PR #537432 pending; go install under nix shell works today'
+  macports: 'port whisper-cli (the command is whisper-cli there because audio/whisper owns /opt/local/bin/whisper)'
+  embedded: Yocto layer meta-whisper, Buildroot whisper-buildroot, OpenWrt whisper-openwrt
+  verify_download: 'gpg --verify whisper.asc "$(command -v whisper)" against https://get.whisper.online/dl/whisper-pgp.asc; per-arch sha256 pinned in the Homebrew formula'
+commands:
+  auth:
+  - {name: login, description: 'Open the console in a browser (device flow, default key preselected) or paste a key; stores a scoped key in the OS keychain. Underlying call: none.'}
+  identity:
+  - {name: 'create --name <agent>', description: 'Claim the caller''s own /128 on the key in hand (reused if one exists). CALL whisper.agents({op:''identity''})'}
+  - {name: 'create --register --name <agent>', description: 'Mint a brand-new agent with its own key: address, forward name, PTR, DANE pin. CALL whisper.agents({op:''register''})'}
+  - {name: list, description: 'Your agents, addresses and status (--json for scripts). CALL whisper.agents({op:''list''})'}
+  - {name: 'kill --revoke <agent>', description: 'Tear down address, DNS, DANE pin, egress and status-list entry in one irreversible step. CALL whisper.agents({op:''revoke''})'}
+  - {name: enroll, description: 'Bind THIS host its own /128 (required before the sensor reports anything)'}
+  egress:
+  - {name: 'connect --agent <agent> [--tier auto|wireguard|socks5]', description: 'Bring up egress sourced from the agent''s /128; auto tries Tier-1 WireGuard then falls back to Tier-1.5 SOCKS5. CALL whisper.agents({op:''connect''})'}
+  - {name: 'run -- <cmd>', description: 'Connect if needed, verify egress via https://whisper.online/egress-ip through the proxy, then exec <cmd> with ALL_PROXY/HTTPS_PROXY set to a loopback SOCKS5 endpoint; whisper run claude is a shorthand'}
+  - {name: 'ip --agent <agent>', description: Prove the current egress source address through the proxy}
+  - {name: 'service install --now [--tier wireguard] [--sensor]', description: 'Install the egress and/or sensor as a supervised system service; service status prints the serving socket and egress address'}
+  verify:
+  - {name: 'verify <addr|fqdn>', description: 'Keyless identity check — GET https://rdap.whisper.online/verify-identity/<addr>'}
+  - {name: 'verify --trustless <addr>', description: 'Re-derives dnssec, dane, transparency and identity_doc locally from the IANA DNSSEC root; the Whisper API is not in the trust path'}
+  policy_and_logs:
+  - {name: 'policy [--default allow|deny] [--allow ...] [--block ...]', description: 'Read or set the tenant resolver policy. CALL whisper.agents({op:''policy''})'}
+  - {name: 'logs --agent <agent> --from -1h --kind dns|conn|alloc', description: 'Per-agent activity. CALL whisper.agents({op:''logs''})'}
+  integrations:
+  - {name: 'init <tool>', description: 'Write the identity into the tool''s native config: claude, python, zed, gemini, aider, ai-sdk, browser-use, discord, telegram, notebook, compose, k8s; no argument auto-detects the project'}
+  - {name: mcp, description: 'Stdio MCP server (io.github.whisper-sec/whisper): keyless whisper_verify/whisper_rdap; with a key the control-plane tools, the graph tools, text2cypher and one whisper_<recipe> tool per catalog recipe'}
+  - {name: mcp install, description: 'Merge a whisper server entry into .mcp.json (Claude Code) and .cursor/mcp.json (Cursor); prints snippets for other clients'}
+  graph:
+  - {name: 'query', description: 'Run one read-only Cypher statement with --param bindings; same JSON envelope as the HTTP API (whisper.security/docs/cli/query)'}
+  - {name: 'recipes', description: 'Run any catalog recipe by name; flow recipes stream steps as NDJSON'}
+  fleet_whalenet:
+  - {name: 'whale status | ip | netcheck | whois <ip> | dns | exit-node | ssh <node> | acl test | migrate plan', description: 'The network between your nodes; verbs mirror tailscale; whois needs no key and validates from the IANA root; migrate plan changes nothing'}
+  signing:
+  - {name: 'sign / verify / encrypt / decrypt', description: 'Detached S/MIME signatures as the agent, verified keylessly against the DNSSEC-validated SMIMEA (RFC 8162) pin; encrypt a file so only a named agent can read it (README)'}
+  misc:
+  - {name: --version, description: Prints just the version number}
+key_flows:
+- name: Quickstart
+  steps: ['curl -fsSL https://get.whisper.online | sh', 'whisper login', 'whisper create --register --name shipping-bot', 'whisper connect --agent shipping-bot', 'whisper run -- curl https://whisper.online/egress-ip', 'dig -x <addr> +short  (keyless confirmation)']
+- name: Zero-config coding agent
+  steps: ['whisper init claude && claude']
+- name: Linux sensor
+  steps: ['whisper login --web', 'whisper enroll', 'sudo -E ~/.local/bin/whisper service install --now --sensor']
+- name: Uninstall cleanly
+  steps: ['whisper kill --revoke <agent>', 'rm $(command -v whisper)']

@@ -1,0 +1,80 @@
+Coordinated Vulnerability Disclosure Policy
+Whisper Security · viaGraph b.v. · the Whisper platform
+Last updated: 2026-09-17
+
+We welcome good-faith security research on the platform we operate, and we will
+work with you to verify, fix, and disclose issues responsibly.
+
+This policy covers the Whisper PLATFORM. The network layer we operate (AS219419,
+our routing, and the prefixes we originate) has its own policy, with its own
+scope and contacts:
+  https://as219419.net/.well-known/disclosure-policy.txt
+Both reach the same mailbox, so send your report wherever it fits best. If you
+are unsure, just send it; we will route it.
+
+How to report
+-------------
+  Email:    security@whisper.security
+  Encrypt:  please encrypt sensitive reports with our OpenPGP key, published at
+            https://whisper.online/.well-known/openpgp-key.txt
+            fingerprint EFF1 663D 9925 3968 2106  A5EA D0F7 0908 CF3B 7929
+  Include:  a clear description, the affected surface or endpoint, reproduction
+            steps or a proof-of-concept, and the impact you observed. One issue
+            per report is easiest to track.
+
+In scope
+--------
+  - whisper.online and its subdomains, the content they serve, and the public
+    agent-facing surfaces on them: the discovery documents, the onboarding
+    manifest, the Agent Card and the A2A endpoint it advertises.
+  - The control plane and the graph API, including the agent verbs reached
+    through them and the authorization that gates each one.
+  - The identity plane as infrastructure: how agent /128s are allocated,
+    registered, resolved, reverse-resolved, and published over RDAP, and the
+    certificate and DNSSEC machinery behind them.
+  - The Whisper CLI, the SDKs and the MCP server we publish, and the release
+    and signing path that delivers them. A supply-chain finding against an
+    artifact we sign is firmly in scope.
+  - The endpoint sensor and the enrollment it performs.
+  - The console and the authentication in front of it.
+
+Out of scope
+------------
+  - The individual agent /128 hosts in 2a04:2a01::/32 and any data, traffic, or
+    conduct on them. Do not access, probe, or interfere with them. (The identity
+    infrastructure above is in scope; the agents themselves are not.)
+  - Customer tenants and their data. Test against your own account only.
+  - Anything we do not operate: third-party networks and platforms, our
+    providers, and destinations reached through our egress.
+  - Denial-of-service, volumetric, or stress testing, and anything that degrades
+    service for others. Do not run these.
+  - Social engineering or phishing of our people, and physical attacks.
+  - Findings with no security impact (missing headers on static no-auth content,
+    version banners, intentionally-open ports, and similar).
+
+Safe harbour
+------------
+  If you make a good-faith effort to follow this policy, we will not pursue or
+  support legal action against you for your research. Good faith means: stay in
+  scope; access only the data needed to demonstrate the issue and never store,
+  modify, or share data that is not yours; do not degrade or disrupt our or
+  others' services; give us reasonable time to remediate before any public
+  disclosure; and stop and contact us if you encounter personal data.
+
+Our commitment
+--------------
+  - We acknowledge reports as quickly as we can, on a best-effort basis during
+    RIPE-region business hours. We are not a 24x7 NOC.
+  - We will keep you updated through validation and remediation, and we will
+    agree a disclosure timeline with you: typically up to 90 days, sooner for
+    low-risk issues, longer by mutual agreement where a fix is complex.
+  - With your consent we are glad to credit you (see Acknowledgments in
+    .well-known/security.txt).
+
+Other contacts
+--------------
+  Abuse (spam, traffic, routing complaints): security@whisper.security
+                                             (same mailbox as reports, by design;
+                                             it is our RIPE abuse-c)
+  Peering / interconnection:                 peering@whisper.security
+  Operational / NOC:                         noc@whisper.security

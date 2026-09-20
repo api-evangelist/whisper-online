@@ -1,0 +1,56 @@
+generated: '2026-09-19'
+method: searched
+source: https://www.whisper.security/docs/reference/changelog
+docs:
+- https://www.whisper.security/docs/reference/changelog
+- https://www.whisper.security/docs/ai/mcp/changelog
+- https://github.com/whisper-sec/whisper-cli/releases
+description: >-
+  Whisper keeps three changelogs: a monthly WhisperGraph product/data-layer log, a monthly MCP connector
+  contract log (kept separate because "an MCP client caches a tool list"), and GitHub releases for the
+  whisper CLI, which also carry the agent card and MCP-registry version. Recent window only; the live
+  pages and tools/list are the source of truth.
+versioning:
+  scheme: 'CLI/agent card/registry: semver 0.x (0.219.2 on 2026-09-17); product and connector logs: month-dated sections without per-entry dates; OpenAPI info.version 1.1.0'
+  current: 0.219.2
+  detail: lifecycle/whisper-online-lifecycle.yml
+entries:
+- version: v0.219.2
+  date: '2026-09-17'
+  source: https://github.com/whisper-sec/whisper-cli/releases/tag/v0.219.2
+  highlights: ['Release body is a compare link only (v0.214.0...v0.219.2); assets are per-platform binaries with .sha256 and .asc PGP signatures plus checksums.txt', 'Same version published to the MCP registry (io.github.whisper-sec/whisper, OCI ghcr.io/whisper-sec/whisper:0.219.2) and to the Homebrew tap the same day']
+  note: 'Ten tags shipped between 2026-09-15 (v0.216.1) and 2026-09-17 (v0.219.2); the Go module proxy lists v0.219.2 at 2026-09-15T04:18Z.'
+- version: 2026-09 (MCP connector)
+  date: 2026-09
+  source: https://www.whisper.security/docs/ai/mcp/changelog
+  additions: ['Tenth query-safety validation rule (untyped fixed-length expansion from a prefix is rejected with a fix)', 'explain_indicator reports score:null / level:UNSCORED / scoreUnavailable:true instead of a clean-looking NONE; reputation{value,scale,direction,category} travels separately', 'sources[] carry category and threatCategory; rows carry threatFeedCount / nonThreatFeedCount; dataCoverage on every row', 'Per-layer lastRefresh, ageSeconds and coverage on whisper://stats', 'run_workflow coverage reconciled over the declared step list; ignoredParams and inputSource', 'identify confidence bands documented (DIRECT > DERIVED 0.70-0.89 > HEURISTIC 0.4 > UNKNOWN)']
+  breaking: []
+- version: 2026-08 (MCP connector)
+  date: 2026-08
+  source: https://www.whisper.security/docs/ai/mcp/changelog
+  breaking: ['submit_indicator and submit_feedback removed with the mcp:write scope — the connector became read-only', 'assess and walk folded into explain_indicator and identify (still callable as procedures inside query)']
+  additions: ['identify joined the tool surface', 'Response-size budget: over-budget query results are fitted (truncated / budgetTruncated + pagination pointer), other tools return schema-valid empties with resultTruncated{}', 'run_workflow wall-clock budget with successful partials; attack-surface refused up front with notRun:true', 'OAuth scopes enforced and documented; Client ID Metadata Documents; refresh-token revocation', 'Feeds and categories anchor on .id; evidence.cypher carries the query that actually ran']
+- version: August 2026 (WhisperGraph)
+  date: 2026-08
+  source: https://www.whisper.security/docs/reference/changelog
+  additions: ['Vulnerability plane: whisper.cve.byPackage(), whisper.vulnPosture(); explain()/whisper.assess() accept CVE ids and file hashes', 'Bulk export whisper.export({label, limit, cursor})', 'Batch enrichment whisper.enrich()', 'Subdomain-takeover check whisper.danglingCname()', 'Phishing-kit URL paths as URL nodes via LINKS_TO', 'REGISTERED_TO_ENTITY registrant handles', 'Routing security signals: ROA more-specific links, hijack/route-leak posture, BGP_NEIGHBOR relClass', 'ACTOR.aliases and MISP tag -> actor links', 'Computed edges in [*1..N] and shortestPath()', 'SAME_ORG_AS registrant folding', 'Errors are RFC 7807 application/problem+json with stable type URIs and suggestions[]', 'Band-consistent verdictScore; explain() scores networks and ASNs as aggregates']
+- version: July 2026 (WhisperGraph)
+  date: 2026-07
+  source: https://www.whisper.security/docs/reference/changelog
+  additions: ['whisper.assessUrl() path-scoped verdicts', 'advisories[] channel on successful responses', 'Forgiving input: label corrections, URL folding, whisper.version()', 'New procedures whisper.resolve(), asnCountries(), asnThreatDensity(); whisper.search() matches network names; identify() attributes bare IPs', 'TAGGED_AS / ATTRIBUTED_TO / BGP_PATH edges', 'rpkiStatus / roaAsn / roaMaxLength on announced prefixes', 'isEgressRisk, egressClasses, popularity rank, scam category; feed sources expose isThreat / isPopularity', 'whisper.origins confidence is a 0-1 probability', 'Per-layer coverage in GET /api/query/stats', 'Reverse feed enumeration']
+- version: 2026-07 (MCP connector)
+  date: 2026-07
+  source: https://www.whisper.security/docs/ai/mcp/changelog
+  additions: ['run_workflow server-owned output profiles (console / website / mcp / raw)', 'Explicit truncations[] and profileWarnings[]', 'read_docs reads the published docs live']
+- version: June 2026 (WhisperGraph + connector)
+  date: 2026-06
+  source: https://www.whisper.security/docs/reference/changelog
+  additions: ['Reconciled threat verdict (verdictScore, verdictLevel, verdictBlocking)', 'TLS fingerprints, Tor-exit identity, vendor egress', 'Certificate Transparency subdomains/SANs', 'Agent tools identify / assess / walk and whisper.origins()', 'Bounded analyst search whisper.search()', 'Connector: tool surface reworked around the gallery (list_workflows, run_workflow, explain_schema, read_docs); query self-correction with typed errorCodes and fix objects; verdicts carry coverage; authentication always enforced']
+- version: May 2026 (WhisperGraph)
+  date: 2026-05
+  source: https://www.whisper.security/docs/reference/changelog
+  additions: ['Physical-infrastructure layer (facilities, IXPs, submarine cables, CDN PoPs, cloud regions)', 'RPKI ROA coverage', 'Threat-actor -> MITRE ATT&CK mapping', 'BGP path and adjacency graph', 'whisper.variants typosquat generation (14+ mutation methods)']
+- version: March 2026 (WhisperGraph)
+  date: 2026-03
+  source: https://www.whisper.security/docs/reference/changelog
+  additions: ['RDAP registration data ingested from regional-registry WHOIS/RDAP']

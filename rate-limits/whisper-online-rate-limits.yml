@@ -1,0 +1,76 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/.well-known/agent-onboarding.json
+docs:
+- https://whisper.online/.well-known/agent-onboarding.json
+- https://whisper.online/docs/control-plane
+- https://whisper.online/docs/graph-api
+- https://www.whisper.security/docs/cypher-api/errors
+- https://www.whisper.security/docs/ai/mcp/reference
+probed:
+- {url: 'https://graph.whisper.online/api/query', method: POST, status: 200, fetched: '2026-09-19', note: 'keyless response carried no RateLimit-*, X-RateLimit-* or Retry-After headers (only x-content-type-options and content-type)'}
+limit_count: 6
+summary: >-
+  Published limits are numeric where they concern the free trial and structural elsewhere. There is "no per-op
+  rate limit beyond the shared API gate"; exhaustion is signalled as HTTP 429 — as RFC 7807 problem type
+  query-quota-exceeded on raw Cypher, and as an envelope row with retry_after seconds on whisper.agents —
+  with no rate-limit response headers documented or observed. Quota is readable at run time with
+  CALL whisper.quota() and the MCP resource whisper://quota.
+rate_limits:
+- name: Trial request rate
+  scope: per-api-key (trial)
+  limit: 10
+  window: 1 minute
+  metric: request
+  source: 'agent-onboarding.json trial_limits.req_per_min; llms.txt "Trial limits: 10 requests/minute, 500/day"'
+- name: Trial daily quota
+  scope: per-api-key (trial)
+  limit: 500
+  window: 1 day
+  metric: request
+  source: agent-onboarding.json trial_limits.req_per_day
+- name: Keyless row ceiling
+  scope: per-request (anonymous)
+  limit: 100
+  window: per query
+  metric: rows returned
+  source: 'docs/graph-api: "bounded by the graph''s keyless ceiling of 100 rows per query; your key lifts that ceiling"'
+- name: Concurrently-registered agents
+  scope: per-account
+  limit: 5
+  window: standing
+  metric: agents
+  exhaustion_status: 429
+  exhaustion_code: AGENT_LIMIT
+  source: 'docs/control-plane §4 — "a default cap of 5 concurrently-registered agents"; the onboarding manifest says max_agents 1000 and llms.txt "up to 1000 agents per account" — the sources disagree; raised on request'
+- name: Standing /128 identities
+  scope: per-account
+  limit: 5
+  window: standing
+  metric: identities
+  exhaustion_status: 429
+  exhaustion_code: IDENTITY_LIMIT
+  source: docs/control-plane §4
+- name: Query quota (keyed)
+  scope: per-plan
+  limit: null
+  window: null
+  metric: query ("one Cypher query against the API or MCP server counts as one query; result size does not affect the count")
+  exhaustion_status: 429
+  exhaustion_type: https://whisper.security/errors/query-quota-exceeded
+  source: 'whisper.security FAQ "What counts as a query?" and docs/cypher-api/errors; the numbers per plan are not published'
+signals:
+  status: 429
+  headers: none documented; none observed
+  body_fields: ['retry_after (seconds) in the whisper.agents envelope on 429/503 — "back off exactly that long, no guessing"', 'retryAfter in the procedure row when explain()/whisper.history() back-ends are unavailable (HTTP still 200)', 'RFC 7807 type slug query-quota-exceeded']
+  runtime_quota: ['CALL whisper.quota() (also confirms isAnonymous)', 'MCP resource whisper://quota']
+size_and_time_limits:
+- {name: Cypher text on the MCP query tool, limit: '32,768 characters', exhaustion: refused before validation, source: docs/ai/mcp/reference}
+- {name: explain_indicator batch, limit: '32 per call at detail full, 333 at band', exhaustion: typed refusal row, source: docs/ai/mcp/reference}
+- {name: identify batch, limit: 256 hosts, exhaustion: rejected not truncated, source: docs/ai/mcp/reference}
+- {name: op:logs limit, limit: 'default 1000, cap 10000', source: docs/control-plane}
+- {name: policy lists, limit: 'block + allow max 1000 names combined; allow_sources max 64', source: docs/control-plane}
+- {name: Named-view limit, limit: 'default 50, maximum 500 per class', source: docs/graph-api}
+- {name: Query timeout, limit: 'timeout (ms) in the body; a value above the access tier is lowered; 408 query-timeout on expiry', source: docs/cypher-api/reference/query-post}
+- {name: Cognition latency target, limit: 'under 300 ms end to end; the resolver fails open past its timeout', source: docs/graph-api}
+- {name: Signup code, limit: '15-minute TTL, 5 attempts', source: agent-onboarding.json}

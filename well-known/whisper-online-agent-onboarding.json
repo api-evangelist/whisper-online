@@ -1,0 +1,76 @@
+{
+  "service": "Whisper - a home for AI agents",
+  "discovery": {
+    "llms_txt": "https://whisper.online/llms.txt",
+    "llms_full_txt": "https://whisper.online/llms-full.txt",
+    "site": "https://whisper.online/",
+    "manifest": "https://whisper.online/.well-known/agent-onboarding.json"
+  },
+  "signup": {
+    "start": "POST https://console.whisper.security/api/signup",
+    "start_body": {"email": "you@example.com"},
+    "verify": "POST https://console.whisper.security/api/signup/verify",
+    "verify_body": {"signup_id": "...", "code": "123456"},
+    "method": "email + 6-digit code",
+    "code_ttl_minutes": 15,
+    "code_max_tries": 5,
+    "human_required": false,
+    "returns": "a whisper_live_... API key"
+  },
+  "use": {
+    "graph": "https://graph.whisper.online/api/query",
+    "graph_auth": "X-API-Key: whisper_live_...",
+    "mcp": "https://mcp.whisper.security",
+    "mcp_auth": "Authorization: Bearer whisper_live_...",
+    "cli_install": "curl -fsSL https://get.whisper.online | sh",
+    "cli_login": "whisper login (browser device-flow at console.whisper.online, default key preselected; or paste a key)"
+  },
+  "agents": {
+    "create": "CALL whisper.agents({op:'register', args:{label:'my-agent'}})",
+    "returns": ["api_key", "address", "fqdn", "ptr"],
+    "dns_rights": "granted automatically at signup (the key can run whisper.agents immediately)",
+    "max_agents": 1000
+  },
+  "verify_an_agent": [
+    "dig -x <addr> +short",
+    "dig +short AAAA <fqdn>",
+    "dig +short TLSA _443._tcp.<fqdn>",
+    "curl -s https://rdap.whisper.online/ip/<addr>",
+    "whois -h whois.whisper.online <addr>",
+    "curl -s https://rdap.whisper.online/verify-identity/<addr>",
+    "dig +short CNAME <friendly>"
+  ],
+  "verify_trustless": {
+    "cmd": "whisper verify --trustless <addr>",
+    "checks": ["dnssec", "dane", "transparency", "identity_doc"],
+    "trust_anchor": "the IANA DNSSEC root -- the Whisper API is explicitly NOT trusted",
+    "note": "re-derives verify_an_agent itself from signed DNS + the transparency ledger; no account, no key"
+  },
+  "connect": {
+    "note": "the machine journey does not end at verify -- an agent also gets a real, routable egress from its own /128",
+    "create": "CALL whisper.agents({op:'connect', args:{agent:'<label-or-address>', tier:'socks5'}})",
+    "tiers": {
+      "socks5": "Tier 1.5: returns http_proxy (HTTPS_PROXY form) + connection_string (socks5h://), source-bound to the agent's own /128 via AnyIP + IP_FREEBIND",
+      "wireguard": "Tier 1 (best): a routed kernel/wireproxy WireGuard peer over the agent's own /128",
+      "wireproxy": "alias of wireguard: the same server-side peer, consumed as a no-root userspace client -> local SOCKS5"
+    },
+    "use": "point ALL_PROXY or HTTPS_PROXY at the returned http_proxy/connection_string; every connection then leaves as that identity",
+    "confirm_egress": "GET https://whisper.online/egress-ip, fetched THROUGH the proxy -> {\"ip\":\"<must equal the agent's own /128>\"}",
+    "govern": {
+      "policy": "CALL whisper.agents({op:'policy', args:{...}})",
+      "list": "CALL whisper.agents({op:'list', args:{}})",
+      "logs": "CALL whisper.agents({op:'logs', args:{...}})",
+      "revoke": "CALL whisper.agents({op:'revoke', args:{...}}) -- the kill-switch; publicly provable via the signed status-list"
+    }
+  },
+  "agent_plane_trust_anchor": {
+    "note": "an agent validating ANOTHER agent's (or its own) TLS leaf can anchor either way -- no single point of failure",
+    "dane": "the TLSA record under DNSSEC pins the exact key; no certificate authority needed at all (the trustless-by-default path)",
+    "ca_bundle": "https://whisper.online/.well-known/whisper-ca.pem (root cert; also whisper-ca-chain.pem and whisper-ca.json for fingerprints) -- for stacks that only know how to trust a CA bundle, e.g. via NODE_EXTRA_CA_CERTS/SSL_CERT_FILE"
+  },
+  "trial_limits": {
+    "req_per_min": 10,
+    "req_per_day": 500
+  },
+  "operator": "Whisper Security (viaGraph B.V.), AS219419, 2a04:2a01::/32"
+}

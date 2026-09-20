@@ -1,0 +1,189 @@
+generated: '2026-09-19'
+method: searched
+source: https://whisper.online/integrations
+docs:
+- https://whisper.online/integrations
+- https://whisper.online/docs/install
+- https://whisper.online/docs/sdk-python
+- https://whisper.online/docs/sdk-node
+- https://whisper.online/docs/sdk-edge
+- https://github.com/whisper-sec
+description: >-
+  First-party client libraries, the CLI and connectors published by Whisper Security (GitHub org whisper-sec,
+  29 public repos, created 2025-01-02). Versions and dates were read from the registry metadata endpoints on
+  2026-09-19 (registry.npmjs.org, pypi.org/pypi/*/json, proxy.golang.org, api.github.com releases,
+  registry.modelcontextprotocol.io). Every npm package below shares the maintainer kakooch and a whisper-sec
+  source repo, and whisper.online/integrations names each one, so official:true. Where no registry answers
+  (GitHub Action, Kubernetes operator, marketplace listings) version is null with a note.
+packages:
+- language: go
+  registry: github-releases
+  name: whisper (whisper-cli)
+  url: https://github.com/whisper-sec/whisper-cli/releases
+  source: https://github.com/whisper-sec/whisper-cli
+  install: curl -fsSL https://get.whisper.online | sh
+  official: true
+  license: MIT
+  version: v0.219.2
+  published: '2026-09-17'
+  note: 'Signed per-platform binaries (.sha256 + .asc); go module proxy lists v0.219.2 at 2026-09-15; also distributed via brew (whisper-sec/tap/whisper 0.219.2), scoop, apt/dnf/apk repos at get.whisper.online, COPR, aqua, mise, snap, MacPorts (whisper-cli), AUR, Yocto/Buildroot/OpenWrt. The same binary is the stdio MCP server (whisper mcp).'
+- language: go
+  registry: pkg.go.dev
+  name: github.com/whisper-sec/whisper-cli/cmd/whisper
+  url: https://pkg.go.dev/github.com/whisper-sec/whisper-cli
+  source: https://github.com/whisper-sec/whisper-cli
+  install: go install github.com/whisper-sec/whisper-cli/cmd/whisper@latest
+  official: true
+  version: v0.219.2
+  published: '2026-09-15'
+- language: container
+  registry: ghcr
+  name: ghcr.io/whisper-sec/whisper
+  url: https://github.com/whisper-sec/whisper-cli/pkgs/container/whisper
+  source: https://github.com/whisper-sec/whisper-cli
+  install: docker run -i ghcr.io/whisper-sec/whisper mcp
+  official: true
+  version: 0.219.2
+  published: '2026-09-17'
+  note: 'Multi-arch image, entrypoint whisper, modes mcp/run/egress-sidecar; the OCI package the MCP registry entry io.github.whisper-sec/whisper (0.219.2, publishedAt 2026-09-17T22:07Z) points at.'
+- language: javascript
+  registry: npm
+  name: whisper-id
+  url: https://www.npmjs.com/package/whisper-id
+  source: https://github.com/whisper-sec/whisper-node
+  install: npm i whisper-id
+  official: true
+  license: MIT
+  version: 0.7.0
+  published: '2026-09-02'
+  note: 'Node SDK: keyless verify / verifyDetails / rdap / egressIp; with a key list, identity, agent, policy, logs, revoke, register, egress, withEgress, ip. Shells out to the whisper CLI ($WHISPER_BIN).'
+- language: python
+  registry: pypi
+  name: whisper-id
+  url: https://pypi.org/project/whisper-id/
+  source: https://github.com/whisper-sec/whisper-py
+  install: pip install whisper-id
+  official: true
+  license: MIT
+  version: 0.7.0
+  published: '2026-09-02'
+  note: 'Python SDK: from whisper_id import verify, verify_details, rdap, register, policy, logs, revoke, egress, Graph. Author "Whisper Security".'
+- language: typescript
+  registry: npm
+  name: whisper-edge
+  url: https://www.npmjs.com/package/whisper-edge
+  source: https://github.com/whisper-sec/whisper-edge
+  install: npm i whisper-edge
+  official: true
+  license: MIT
+  version: 0.6.1
+  published: '2026-08-21'
+  note: 'Dependency-free fetch-only SDK for Cloudflare Workers, Vercel, Deno, Netlify, AWS Lambda, Supabase: verify / verifyDetails / resolve / rdap / rdapDomain; control(apiKey) for the keyed verbs.'
+- language: typescript
+  registry: npm
+  name: n8n-nodes-whisper
+  url: https://www.npmjs.com/package/n8n-nodes-whisper
+  source: https://github.com/whisper-sec/whisper-n8n
+  install: n8n community node n8n-nodes-whisper
+  official: true
+  license: MIT
+  version: 0.4.3
+  published: '2026-08-22'
+  note: Ten operations across both tiers — verify/RDAP keyless, register/policy/logs/revoke with a key.
+- language: typescript
+  registry: npm
+  name: '@whisper-security/whisper-graph-mcp'
+  url: https://www.npmjs.com/package/@whisper-security/whisper-graph-mcp
+  source: https://github.com/whisper-sec/whisper-graph-mcp
+  install: npx -y @whisper-security/whisper-graph-mcp
+  official: true
+  license: Apache-2.0
+  version: 0.2.0
+  published: '2026-07-19'
+  note: 'Open-source stdio MCP server for WhisperGraph (Node >= 20); MCP registry entry io.github.whisper-sec/whisper-graph 0.2.0 also lists the remote https://mcp.whisper.security. The CLI''s whisper mcp is the newer local server.'
+- language: yaml
+  registry: github-marketplace
+  name: whisper-sec/setup-whisper
+  url: https://github.com/whisper-sec/setup-whisper
+  source: https://github.com/whisper-sec/setup-whisper
+  install: 'uses: whisper-sec/setup-whisper@v1'
+  official: true
+  license: MIT
+  version: null
+  published: null
+  note: 'GitHub Action that installs the signed CLI and optionally connects the job as a named agent; documented as @v1, repo last pushed 2026-09-01; no registry metadata endpoint to read a release from.'
+- language: go
+  registry: none
+  name: whisper-operator
+  url: https://github.com/whisper-sec/whisper-operator
+  source: https://github.com/whisper-sec/whisper-operator
+  install: Kubernetes operator (see https://whisper.online/docs/kubernetes)
+  official: true
+  license: MIT
+  version: null
+  published: null
+  note: Injects a zero-privilege Whisper egress sidecar into opted-in pods; repo last pushed 2026-09-07; no release registry queried.
+- language: c
+  registry: none
+  name: whisper-embedded-c
+  url: https://github.com/whisper-sec/whisper-embedded-c
+  source: https://github.com/whisper-sec/whisper-embedded-c
+  official: true
+  license: MIT
+  version: null
+  published: null
+  note: Portable C99 keyless identity core for microcontrollers (Raspberry Pi Pico SDK, NXP); source-only.
+- language: python
+  registry: docker-hub
+  name: whisper-opencti (OpenCTI connector)
+  url: https://hub.filigran.io/en/cybersecurity-solutions/opencti-integrations/whisper
+  source: https://github.com/whisper-sec/whisper-opencti
+  official: true
+  license: MIT
+  version: null
+  published: null
+  note: 'Docs say the image is pulled from Docker Hub; the tag was not read from a registry here. Repo last pushed 2026-09-03.'
+- language: splunk
+  registry: splunkbase
+  name: Whisper Security Add-on for Splunk (TA-whisper-graph)
+  url: https://www.whisper.security/docs/integrations/splunk/overview
+  official: true
+  version: 1.0.0
+  published: null
+  note: 'Version from the provider''s own Splunk changelog page ("the published 1.0.0 release, every pre-release tag"); Splunkbase was not queried.'
+- language: azure
+  registry: microsoft-marketplace
+  name: Whisper Security solution for Microsoft Sentinel
+  url: https://marketplace.microsoft.com/en-us/product/whisper-security.azure-sentinel-solution-whisper
+  official: true
+  version: null
+  published: null
+- language: python
+  registry: misp-modules
+  name: whisper (MISP expansion + hover module)
+  url: https://misp.github.io/misp-modules/expansion/#whisper
+  official: true
+  version: null
+  published: null
+  note: Distributed inside misp-modules, so it follows that project's releases.
+- language: python
+  registry: dify-marketplace
+  name: Whisper Agent Identity (Dify tool plugin)
+  url: https://github.com/whisper-sec/dify-plugin
+  source: https://github.com/whisper-sec/dify-plugin
+  official: true
+  license: MIT
+  version: null
+  published: null
+- language: markdown
+  registry: github
+  name: whisper-skills (Agent Skills plugin)
+  url: https://github.com/whisper-sec/whisper-skills
+  source: https://github.com/whisper-sec/whisper-skills
+  install: '/plugin marketplace add whisper-sec/whisper-skills && /plugin install whisper-graph@whisper-security'
+  official: true
+  license: MIT
+  version: null
+  published: null
+  note: Four investigation playbooks (whisper-investigate, whisper-bulk-triage, whisper-cypher, whisper-brand-protection) for the MCP connector.
+sdk_count_official: 4   # whisper-id (npm), whisper-id (PyPI), whisper-edge (npm), whisper CLI

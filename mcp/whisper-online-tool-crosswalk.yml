@@ -1,0 +1,151 @@
+generated: '2026-09-19'
+method: derived
+source: >-
+  Derived by binding the provider-published MCP tool list (mcp/whisper-online-mcp-manifest.json for the hosted
+  connector; whisper.online/docs/mcp and whisper.security/docs/cli/mcp for the local `whisper mcp` server) and
+  the 37 A2A skills in a2a/whisper-online-agent-card.json to the 13 operations in openapi/whisper-online-openapi.json
+  (OpenAPI 3.1.0, info.version 1.1.0). The live MCP tools/list is OAuth-gated (401), so bindings are by documented
+  semantics; confidence is set accordingly.
+purpose: >-
+  Whisper deliberately has ONE control endpoint (POST /api/query running Cypher) and layers every other surface on
+  it: the A2A skills are "a binding over the same Cypher call ... not a second implementation of it" (openapi
+  a2aSendMessage description), and the CLI, SDKs, n8n node and MCP server are documented as "thin wrappers over
+  exactly the calls" on the control-plane page. The crosswalk therefore collapses onto a single REST operationId
+  for most tools; what differs per surface is the procedure name inside the Cypher and whether a key is required.
+surfaces:
+  rest_openapi: openapi/whisper-online-openapi.json   # 13 operations; servers[] https://whisper.online; the same file is served on agents. and endpoint.whisper.online
+  control_plane_host: https://graph.whisper.online/api/query   # documented control endpoint; whisper.online/api/query in the spec
+  mcp_hosted: https://mcp.whisper.security   # 7 read-only tools; tools/list gated (401, RFC 9728 challenge)
+  mcp_local: whisper mcp (stdio; io.github.whisper-sec/whisper)   # 8 identity tools + graph tools + whisper_<recipe>
+  a2a: https://whisper.online/a2a   # JSON-RPC 2.0 SendMessage; 37 skills; GET answers -32600 pointing at the card
+  rdap: https://rdap.whisper.online/ip/{address}   # RFC 9083; outside the OpenAPI by design (info.description table)
+crosswalk:
+- tool: query
+  surface: mcp-hosted, mcp-local
+  category: graph-read
+  rest: [query]
+  binding: rest
+  confidence: high
+  note: Same POST /api/query Cypher path. The hosted connector refuses write/admin Cypher and denies whisper.submit and whisper.watch by name; the REST op also accepts CALL whisper.agents with X-API-Key, which no MCP tool on the hosted server reaches.
+- tool: explain_indicator
+  surface: mcp-hosted, mcp-local
+  category: risk
+  rest: [query]
+  binding: rest-procedure
+  procedure: CALL explain(...) / CALL whisper.assess([...])
+  confidence: medium
+  note: The tool adds batching (32 full / 333 band), coverage blocks and a response budget on top of the procedures.
+- tool: explain_schema
+  surface: mcp-hosted, mcp-local
+  category: schema
+  rest: [query]
+  binding: rest-procedure
+  procedure: CALL db.schema() / CALL db.labels() / CALL db.relationshipTypes()
+  confidence: medium
+- tool: identify
+  surface: mcp-hosted, mcp-local
+  category: attribution
+  rest: [query]
+  binding: rest-procedure
+  procedure: CALL whisper.identify(host)  (+ whisper.walk for the neighbourhood arm)
+  confidence: high
+  note: Verified live 2026-09-19 — a keyless POST to graph.whisper.online/api/query with CALL whisper.identify("api.openai.com") returned the same columns the tool documents (host, vendor_id, canonical_name, is_canonical, confidence, category, roles, band, host_class, evidence).
+- tool: list_workflows
+  surface: mcp-hosted, mcp-local
+  category: gallery
+  rest: []
+  binding: composite
+  confidence: low
+  note: Reads a server-side gallery catalogue; the nearest REST equivalent is CALL whisper.views() for the three named views, which is a subset.
+- tool: run_workflow
+  surface: mcp-hosted, mcp-local
+  category: gallery
+  rest: [query]
+  binding: composite
+  procedure: multi-step read Cypher per gallery slug (evidence[] carries the exact Cypher per step)
+  confidence: medium
+- tool: whisper_verify
+  surface: mcp-local
+  category: identity-verify
+  rest: [verifyIdentity]
+  binding: rest
+  confidence: high
+  note: GET /verify-identity (address query) on whisper.online in the spec; the docs and CLI call the same handler on rdap.whisper.online/verify-identity/<addr>.
+- tool: whisper_register
+  surface: mcp-local
+  category: control-plane
+  rest: [query]
+  binding: rest-procedure
+  procedure: "CALL whisper.agents({op:'register', args:{label}})"
+  confidence: high
+- tool: whisper_list
+  surface: mcp-local
+  category: control-plane
+  rest: [query]
+  binding: rest-procedure
+  procedure: "CALL whisper.agents({op:'list', args:{kind}})"
+  confidence: high
+- tool: whisper_policy
+  surface: mcp-local
+  category: control-plane
+  rest: [query]
+  binding: rest-procedure
+  procedure: "CALL whisper.agents({op:'policy', args:{default, block, allow, allow_sources}})"
+  confidence: high
+- tool: whisper_logs
+  surface: mcp-local
+  category: control-plane
+  rest: [query]
+  binding: rest-procedure
+  procedure: "CALL whisper.agents({op:'logs', args:{agent, kind, from, to, limit}})"
+  confidence: high
+- tool: whisper_revoke
+  surface: mcp-local
+  category: control-plane
+  rest: [query]
+  binding: rest-procedure
+  procedure: "CALL whisper.agents({op:'revoke', args:{agent}})"
+  confidence: high
+- tool: whisper_egress_config
+  surface: mcp-local
+  category: control-plane
+  rest: [query]
+  binding: rest-procedure
+  procedure: "CALL whisper.agents({op:'connect', args:{agent, tier}})"
+  confidence: medium
+mcp_only:
+- tool: read_docs
+  reason: Fetches the published documentation site; no REST operation.
+- tool: whisper_rdap
+  reason: Backed by the RDAP server (RFC 9083) at https://rdap.whisper.online/ip/{address}, which the OpenAPI deliberately excludes because the standard already specifies it.
+- tool: text2cypher
+  reason: Local natural-language-to-Cypher translation; no REST operation.
+- tool: whisper_<recipe>
+  reason: Per-recipe wrappers over run_workflow; composite Cypher, no dedicated REST operation.
+rest_only:
+- a2aSendMessage
+- ledgerCheckpoint
+- ledgerCheckpointKey
+- ledgerStatusList
+- ledgerOtsLatestConfirmed
+- ledgerTile
+- ledgerInclusion
+- ledgerConsistency
+- menu
+- agentCard
+- agentOnboarding
+a2a_crosswalk:
+  note: Every A2A skill is delivered through a2aSendMessage (POST /a2a). The 21 agents.* skills are the whisper.agents ops and bind to the query operation with X-API-Key; the 16 cognition skills (identify, assess, walk, watch, submit, explain, variants, origins, history, lookupTlsFingerprint, lookupTorRelay, asset, threatintel, psl, topAsnsByPrefixCount, signup) bind to keyless procedures on the same operation, except signup (console.whisper.security/api/signup, outside the OpenAPI) and submit (key-gated write).
+  skills_to_rest:
+    agents.*: [a2aSendMessage, query]
+    identify|assess|walk|explain|variants|origins|history|lookupTlsFingerprint|lookupTorRelay|asset|threatintel|psl|topAsnsByPrefixCount|watch|submit: [a2aSendMessage, query]
+    signup: [a2aSendMessage]
+coverage:
+  rest_operations: 13
+  rest_bound_by_some_tool: 2   # query, verifyIdentity
+  rest_only: 11
+  mcp_hosted_tools: 7
+  mcp_hosted_bound: 6
+  mcp_local_identity_tools: 8
+  mcp_only: 4
+  a2a_skills: 37

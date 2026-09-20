@@ -1,18 +1,231 @@
 aid: whisper-online
 name: Whisper Security
-description: 'Whisper Security is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Whisper Security (viaGraph B.V., Amsterdam; AS219419) gives AI agents a real, routable IPv6 /128 address as
+  their identity — allocated from its own 2a04:2a01::/32, published in reverse DNS, RDAP/WHOIS and an RFC 6962
+  transparency log, and DANE-pinned in DNSSEC-signed DNS so anyone can verify an agent with dig, whois and curl
+  and no Whisper account. One Cypher endpoint (POST /api/query) carries both the keyless WhisperGraph — an
+  internet-infrastructure and threat-intelligence graph answering who runs a host and whether it is safe, with
+  the evidence chain — and the keyed control plane CALL whisper.agents (register, connect, policy, logs, revoke).
+  The same surface is published as an OpenAPI 3.1 contract, an A2A 1.0 agent card with 37 skills, a hosted OAuth
+  MCP server, a stdio MCP server inside the MIT whisper CLI, npm/PyPI SDKs, and llms.txt.
 url: https://raw.githubusercontent.com/api-evangelist/whisper-online/refs/heads/main/apis.yml
+image: https://whisper.online/logo.png
 x-type: company
 x-source: harvest:a2a-registry
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-09-19 (local-v3; was a2a-registry harvest stub)
+x-api-bases:
+  checked: '2026-09-19'
+  verdict: disagreement
+  decision: per-entry-from-docs
+  bases:
+    whisper-online:whisper-api: https://whisper.online
+    whisper-online:whispergraph-control-plane: https://graph.whisper.online
+    whisper-online:whispergraph-mcp-server: https://mcp.whisper.security
+    whisper-online:whisper-a2a-agent: https://whisper.online/a2a
+    whisper-online:whisper-rdap: https://rdap.whisper.online
+  note: whisper.online is the OpenAPI servers[] host and answers /openapi.json, /verify-identity, /checkpoint, /a2a and /menu live, so it is the real base of the Whisper API, not a marketing root; the spec's servers[] was left untouched.
 specificationVersion: '0.20'
 created: '2026-09-19'
 modified: '2026-09-19'
 tags:
-- Company
-apis: []
+- Agent Identity
+- Agents
+- IPv6
+- DNS
+- DNSSEC
+- Threat Intelligence
+- Security
+- Egress
+- A2A
+- MCP
+- RDAP
+- Transparency Log
+- Graph Database
+- agent-native
+- Netherlands
+tags_raw:
+- Agent identity
+- Agents
+- IPv6
+- DNS
+- DNSSEC
+- Threat intelligence
+- Security
+- Egress
+- A2A
+- MCP
+- RDAP
+- Transparency log
+- Graph database
+- Agent-native
+- Netherlands
+apis:
+- aid: whisper-online:whisper-api
+  name: Whisper API
+  description: >-
+    The keyless half of the platform as an OpenAPI 3.1.0 contract (info.version 1.1.0, 13 operations, served at
+    https://whisper.online/openapi.json and byte-identically on agents. and endpoint.whisper.online): the single
+    Cypher endpoint POST /api/query (keyless graph reads; with X-API-Key the whole control plane via CALL
+    whisper.agents), the A2A JSON-RPC endpoint POST /a2a, GET /verify-identity, the RFC 6962 transparency ledger
+    (checkpoint, key, status-list, OpenTimestamps anchor, tiles, inclusion and consistency proofs), the live
+    service catalogue GET /menu, and the two discovery documents. The spec deliberately excludes surfaces another
+    standard already specifies (DoH, RDAP, geofeed, security.txt, SSF, SCITT, the agent card, MCP) and points at
+    those standards instead.
+  humanURL: https://whisper.online/docs
+  baseURL: https://whisper.online
+  image: https://whisper.online/logo.png
+  tags:
+  - Agent Identity
+  - Transparency Log
+  - A2A
+  - IPv6
+  - DNSSEC
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-openapi.json
+  - type: OpenAPI
+    name: Whisper API OpenAPI (provider-hosted)
+    url: https://whisper.online/openapi.json
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: Overlay
+    url: overlays/whisper-online-openapi-overlay.yaml
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whispergraph-control-plane
+  name: WhisperGraph and Control Plane (Cypher API)
+  description: >-
+    The documented front door for both halves of the platform: POST https://graph.whisper.online/api/query runs
+    openCypher against WhisperGraph (41 node labels, 52 edge types; identify, assess, explain, walk, origins,
+    history, variants, the psl.* family, named views attackSurface / blastRadius / brandPhishingFleet, and raw
+    read-only MATCH — keyless, capped at 100 rows) and, with X-API-Key, the one control verb CALL
+    whisper.agents({op, args}) for register, identity, list, agent, connect, policy, logs and revoke. Errors are
+    RFC 7807 application/problem+json with stable type slugs; the whisper.agents envelope carries ok/status/error/
+    retry_after. graph.whisper.security is the legacy host with the same three endpoints (POST and GET /api/query,
+    GET /api/query/stats).
+  humanURL: https://whisper.online/docs/control-plane
+  baseURL: https://graph.whisper.online
+  image: https://whisper.online/logo.png
+  tags:
+  - Graph Database
+  - Threat Intelligence
+  - Agent Identity
+  - Egress
+  - DNS
+  properties:
+  - type: Documentation
+    url: https://whisper.online/docs/control-plane
+  - type: APIReference
+    url: https://www.whisper.security/docs/cypher-api/reference
+  - type: Documentation
+    name: Graph and cognition verbs
+    url: https://whisper.online/docs/graph-api
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisper-online-rate-limits.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: DataModel
+    url: data-model/whisper-online-data-model.yml
+  - type: OAuthScopes
+    url: scopes/whisper-online-scopes.yml
+  - type: Authentication
+    url: authentication/whisper-online-authentication.yml
+- aid: whisper-online:whispergraph-mcp-server
+  name: WhisperGraph MCP Server
+  description: >-
+    Hosted remote MCP server at https://mcp.whisper.security (Streamable HTTP, protocol revisions up to
+    2025-11-25) advertising seven read-only tools (query, explain_indicator, explain_schema, read_docs,
+    list_workflows, run_workflow, identify), four resources and ten prompts, listed in the Claude Connectors
+    Directory and the MCP registry. An RFC 9728 protected resource: an anonymous tools/list returns 401 with a
+    WWW-Authenticate challenge naming /.well-known/oauth-protected-resource; OAuth 2.1 with RFC 7591 dynamic
+    client registration and PKCE S256 (scopes mcp:read, offline_access) or a static bearer key. A stdio sibling
+    ships inside the whisper CLI (whisper mcp; io.github.whisper-sec/whisper) adding keyless whisper_verify and
+    whisper_rdap plus the key-gated control-plane tools.
+  humanURL: https://www.whisper.security/docs/ai/mcp/setup
+  baseURL: https://mcp.whisper.security
+  image: https://whisper.online/logo.png
+  tags:
+  - MCP
+  - agent-native
+  - Threat Intelligence
+  - Graph Database
+  properties:
+  - type: MCPServer
+    url: mcp/whisper-online-mcp.yml
+  - type: MCPServer
+    name: WhisperGraph MCP endpoint (Streamable HTTP, OAuth)
+    url: https://mcp.whisper.security
+  - type: ToolCrosswalk
+    url: mcp/whisper-online-tool-crosswalk.yml
+  - type: Documentation
+    url: https://www.whisper.security/docs/ai/mcp/setup
+  - type: APIReference
+    url: https://www.whisper.security/docs/ai/mcp/reference
+  - type: OAuthScopes
+    url: scopes/whisper-online-scopes.yml
+  - type: ChangeLog
+    url: https://www.whisper.security/docs/ai/mcp/changelog
+  - type: Deprecation
+    url: https://www.whisper.security/docs/ai/mcp/deprecation
+- aid: whisper-online:whisper-a2a-agent
+  name: Whisper A2A Agent
+  description: >-
+    Agent2Agent surface: an A2A 1.0-shaped card at https://whisper.online/.well-known/agent-card.json (version
+    0.219.2, provider Whisper Security, JSONRPC binding, capabilities object, 37 skills — 15 keyless cognition
+    and signup skills, 22 key-gated skills including every whisper.agents control-plane op) and a legacy
+    0.3.0-shaped twin at /.well-known/agent.json, both served on six hosts. The JSON-RPC 2.0 endpoint
+    https://whisper.online/a2a answers GET with -32600 pointing back at the card; skills are a binding over the
+    same Cypher call the REST endpoint runs.
+  humanURL: https://whisper.online/docs/a2a-trust
+  baseURL: https://whisper.online/a2a
+  image: https://whisper.online/logo.png
+  tags:
+  - A2A
+  - agent-native
+  - Agent Identity
+  properties:
+  - type: AgentCard
+    url: a2a/whisper-online-a2a.yml
+  - type: AgentCard
+    name: A2A Agent Card (provider-hosted, 1.0 shape)
+    url: https://whisper.online/.well-known/agent-card.json
+  - type: Documentation
+    url: https://whisper.online/docs/a2a-trust
+- aid: whisper-online:whisper-rdap
+  name: Whisper RDAP and Identity Verification
+  description: >-
+    RFC 9083 Registration Data Access Protocol for agent identities (application/rdap+json, rdapConformance
+    rdap_level_0) at https://rdap.whisper.online/ip/{address}, with /help, a per-agent /transparency arm carrying
+    issuance events and inclusion proofs, and the keyless full-chain verdict at /verify-identity/{address}
+    (is_whisper_agent, dane_ok, jws_ok and the evidence). The same record answers over WHOIS (RFC 3912) at
+    whois.whisper.online and FINGER; registry rules and the data licence are at nic.whisper.online. Verified live
+    against the published first resident on 2026-09-19.
+  humanURL: https://whisper.online/docs/rdap
+  baseURL: https://rdap.whisper.online
+  image: https://whisper.online/logo.png
+  tags:
+  - RDAP
+  - Agent Identity
+  - IPv6
+  - DNSSEC
+  properties:
+  - type: Documentation
+    url: https://whisper.online/docs/rdap
+  - type: Documentation
+    name: Verify an agent (seven keyless proofs)
+    url: https://whisper.online/docs/verify
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -21,3 +234,112 @@ maintainers:
 common:
 - type: Website
   url: https://whisper.online/
+- type: Documentation
+  url: https://whisper.online/docs
+- type: APIReference
+  url: https://whisper.online/docs/control-plane
+- type: GettingStarted
+  url: https://whisper.online/docs/quickstart
+- type: DeveloperPortal
+  url: https://console.whisper.security
+- type: SignUp
+  url: https://console.whisper.security/sign-up
+- type: Login
+  url: https://console.whisper.online
+- type: GitHubOrganization
+  url: https://github.com/whisper-sec
+- type: Blog
+  url: https://www.whisper.security/resources/blog
+- type: ChangeLog
+  url: https://www.whisper.security/docs/reference/changelog
+- type: ChangeLog
+  url: changelog/whisper-online-changelog.yml
+- type: StatusPage
+  url: https://status.whisper.security
+- type: Support
+  url: https://www.whisper.security/docs/reference/support
+- type: TermsOfService
+  url: https://whisper.online/terms
+- type: PrivacyPolicy
+  url: https://whisper.online/privacy
+- type: LinkedIn
+  url: https://linkedin.com/company/whispersecurity/
+- type: X
+  url: https://x.com/WhisperSecTech
+- type: YouTube
+  url: https://www.youtube.com/@Whisper-Security
+- type: LLMsTxt
+  url: llms/whisper-online-llms.txt
+- type: LLMsTxt
+  name: llms.txt (provider-hosted)
+  url: https://whisper.online/llms.txt
+- type: AgentCard
+  url: a2a/whisper-online-a2a.yml
+- type: MCPServer
+  url: mcp/whisper-online-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/whisper-online-tool-crosswalk.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: AgentSkill
+  name: whisper-identity (provider-published SKILL.md)
+  url: https://whisper.online/.well-known/skills/whisper-identity/SKILL.md
+- type: WellKnown
+  url: well-known/whisper-online-well-known.yml
+- type: SecurityTxt
+  url: well-known/whisper-online-security.txt
+- type: Packages
+  url: packages/whisper-online-packages.yml
+- type: SDKs
+  url: packages/whisper-online-packages.yml
+- type: CLI
+  url: cli/whisper-online-cli.yml
+- type: Conformance
+  url: conformance/whisper-online-conformance.yml
+- type: Lifecycle
+  url: lifecycle/whisper-online-lifecycle.yml
+- type: Deprecation
+  url: lifecycle/whisper-online-lifecycle.yml
+- type: Plans
+  url: plans/whisper-online-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/whisper-online-rate-limits.yml
+- type: Conventions
+  url: conventions/whisper-online-conventions.yml
+- type: Sandbox
+  url: sandbox/whisper-online-sandbox.yml
+- type: DataModel
+  url: data-model/whisper-online-data-model.yml
+- type: Authentication
+  url: authentication/whisper-online-authentication.yml
+- type: OAuthScopes
+  url: scopes/whisper-online-scopes.yml
+- type: ErrorCatalog
+  url: errors/whisper-online-problem-types.yml
+- type: Security
+  url: security/whisper-online-vulnerability-disclosure.yml
+- type: VulnerabilityDisclosure
+  url: security/whisper-online-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/whisper-online-domain-security.yml
+- type: AgenticAccess
+  url: agentic-access/whisper-online-agentic-access.yml
+- type: RegulatoryPosture
+  url: regulatory/whisper-online-regulatory-posture.yml
+- type: DataSubjectRequest
+  url: https://whisper.online/privacy
+- type: Subprocessors
+  url: https://www.whisper.security/privacy-policy
+- type: DataResidency
+  url: https://whisper.online/privacy
+- type: IncidentNotification
+  url: https://whisper.online/privacy
+- type: SupportLifetime
+  url: https://www.whisper.security/docs/ai/mcp/deprecation
+- type: GlobalPrivacyControl
+  url: https://www.whisper.security/privacy-policy
+x-enrichment:
+  date: '2026-09-19'
+  status: enriched
+  artifacts_added: 44
+  pass: local-v3

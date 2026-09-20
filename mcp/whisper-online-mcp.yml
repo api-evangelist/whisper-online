@@ -1,0 +1,168 @@
+generated: '2026-09-19'
+method: searched
+status: published
+source: https://www.whisper.security/docs/ai/mcp/setup
+docs:
+- https://www.whisper.security/docs/ai/mcp/setup
+- https://www.whisper.security/docs/ai/mcp/reference
+- https://www.whisper.security/docs/cli/mcp
+- https://whisper.online/docs/mcp
+- https://whisper.online/docs/connect-mcp
+- https://mcp.whisper.security/.well-known/mcp-manifest.json
+- https://mcp.whisper.security/.well-known/mcp.json
+description: >-
+  Whisper Security ships two MCP surfaces over one graph. (1) A hosted remote server at
+  https://mcp.whisper.security (Streamable HTTP, protocol revisions negotiated up to 2025-11-25) that
+  advertises seven read-only tools, four resources and ten prompts; it is listed in the Claude Connectors
+  Directory as "WhisperGraph" and in the official MCP registry as io.github.whisper-sec/whisper-graph. It
+  is an RFC 9728 protected resource — an anonymous tools/list returns HTTP 401 with
+  WWW-Authenticate: Bearer scope="mcp:read", resource_metadata="https://mcp.whisper.security/.well-known/oauth-protected-resource"
+  — with OAuth (RFC 7591 dynamic client registration, PKCE S256, Client ID Metadata Documents) or a static
+  API key as Authorization: Bearer / X-API-Key. There is no anonymous mode. (2) A local stdio server,
+  `whisper mcp`, built into the MIT-licensed whisper CLI binary (MCP registry entry io.github.whisper-sec/whisper,
+  OCI package ghcr.io/whisper-sec/whisper), which adds the identity plane: two keyless tools (whisper_verify,
+  whisper_rdap) plus six key-gated control-plane tools, the same graph tools as the hosted connector,
+  text2cypher, and one whisper_<recipe> tool per catalog recipe (45 tools with a key as of the docs).
+  A third, older open-source stdio server (npm @whisper-security/whisper-graph-mcp 0.2.0, Apache-2.0) is
+  still published. The hosted tool list below is taken verbatim from the provider's own
+  /.well-known/mcp-manifest.json (saved as mcp/whisper-online-mcp-manifest.json); input schemas require an
+  authenticated tools/list and are described from the reference docs, not fetched.
+server:
+  name: whisper-graph
+  title: WhisperGraph
+  transport: streamable-http
+  url: https://mcp.whisper.security
+  auth: oauth2 | api-key
+  protected_resource: well-known/whisper-online-mcp-oauth-protected-resource.json
+  authorization_server: https://mcp.whisper.security
+  authorization_server_metadata: well-known/whisper-online-mcp-oauth-authorization-server.json
+  scopes: [mcp:read, offline_access, mcp:query]
+  manifest: mcp/whisper-online-mcp-manifest.json
+  directory_listing: https://claude.ai/directory/whisper-graph
+  registry_entry: io.github.whisper-sec/whisper-graph (0.2.0, published 2026-07-19; remotes streamable-http https://mcp.whisper.security)
+  status_page_component: Whisper MCP server (https://status.whisper.security)
+local:
+  name: io.github.whisper-sec/whisper
+  transport: stdio
+  install: whisper mcp
+  container: docker run -i ghcr.io/whisper-sec/whisper mcp
+  package: https://github.com/whisper-sec/whisper-cli
+  server_json: mcp/whisper-online-mcp-server.json
+  registry_entry: io.github.whisper-sec/whisper (0.219.2, published 2026-09-17; OCI ghcr.io/whisper-sec/whisper:0.219.2)
+  config_writer: whisper mcp install  (merges a server entry into .mcp.json and .cursor/mcp.json)
+  key_ladder: WHISPER_API_KEY / WHISPER_KEY env, or the credential saved by `whisper login`
+  alternate_stdio:
+    name: '@whisper-security/whisper-graph-mcp'
+    install: npx -y @whisper-security/whisper-graph-mcp
+    package: https://www.npmjs.com/package/@whisper-security/whisper-graph-mcp
+    version: 0.2.0
+    published: '2026-07-19'
+    source: https://github.com/whisper-sec/whisper-graph-mcp
+    license: Apache-2.0
+tools:
+- name: query
+  title: WhisperGraph Cypher Query
+  surface: hosted + local
+  read_only: true
+  arguments: 'cypher (required, <= 32,768 chars); params; format (table | graph | compact); page / pageSize'
+  description: Run an arbitrary read-only Cypher query; write and admin clauses and mutating CALL procedures are refused before execution. Returns columns, rows, statistics plus an evidence block and references on every call.
+- name: explain_indicator
+  title: Threat Assessment for Indicators
+  surface: hosted + local
+  read_only: true
+  arguments: 'indicators[] (required; indicator alias); detail (auto | full | band) — 32 per call at full, 333 at band'
+  description: Coverage-qualified threat verdict for IPv4, IPv6, hostname, CIDR or ASN; every row carries level and coverage, unscored rows read level UNSCORED / score null.
+- name: explain_schema
+  title: Describe WhisperGraph Schema
+  surface: hosted + local
+  read_only: true
+  arguments: 'label (optional, uppercase [A-Z][A-Z0-9_]{0,63})'
+  description: Label catalogue (41 labels, 52 edge types) or one label's properties, edges and a sample traversal.
+- name: read_docs
+  title: Read whisper.security Documentation
+  surface: hosted + local
+  read_only: true
+  arguments: 'one of path (fetch), query (search), or nothing (list); index-relative paths only'
+  description: Lists, searches or fetches the published documentation at call time.
+- name: list_workflows
+  title: List / Search the Workflow & Recipe Gallery
+  surface: hosted + local
+  read_only: true
+  arguments: 'keyword, persona, task, layer, kind (workflow | recipe) — all optional'
+  description: The shared investigation gallery with each item's full parameter space (inputs[] with passAs, params[] with kind/options/min/max/default).
+- name: run_workflow
+  title: Run Gallery Workflows / Recipes
+  surface: hosted + local
+  read_only: true
+  arguments: 'runs[{slug, input?, params?}] (required); format; profile (console | website | mcp | raw); output'
+  description: Runs one or more gallery workflows inside a wall-clock budget; returns steps[], evidence[] with the Cypher per step, coverage{}, and a budgeted markdown report under the default mcp profile.
+- name: identify
+  title: Identify Who Runs a Host (vendor & roles)
+  surface: hosted + local
+  read_only: true
+  arguments: 'hosts[] (required, <= 256); neighbourhood (default true); depth 1-6 (default 2); budget_ms (default 3000)'
+  description: Vendor and role attribution for a batch of hosts (DIRECT > DERIVED 0.70-0.89 > HEURISTIC 0.4 > UNKNOWN), deliberately not a threat verdict.
+- name: whisper_verify
+  surface: local only (whisper mcp)
+  gate: keyless
+  description: Full trust chain (reverse DNS + DANE-EE TLSA + DNSSEC + JWS) for an address or FQDN, returning a verdict JSON. Same check as GET https://rdap.whisper.online/verify-identity/<addr>.
+- name: whisper_rdap
+  surface: local only (whisper mcp)
+  gate: keyless
+  description: RDAP (RFC 9083) registration record for a /128 — operator, tenant, issued-since.
+- name: whisper_register
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: 'Create an agent: name in, routable /128 + DNS name out (CALL whisper.agents({op:''register''})).'
+- name: whisper_list
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: List the tenant's agents, DNS records, or identities.
+- name: whisper_policy
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: Read or set the tenant's resolver policy (block/allow/default).
+- name: whisper_logs
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: Query an agent's DNS/connection/allocation history.
+- name: whisper_revoke
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: Irreversibly withdraw an agent's /128, reverse DNS and keys.
+- name: whisper_egress_config
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: Return the proxy env + whisper connect/run command to source a workload from an agent's /128.
+- name: text2cypher
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: Translate an English question into Cypher.
+- name: whisper_<recipe>
+  surface: local only (whisper mcp)
+  gate: api-key
+  description: One tool per catalog recipe (e.g. whisper_typosquat, whisper_bgpHijackExposure, whisper_subdomainTakeover, whisper_identify); read the live tools/list rather than a hardcoded count.
+resources:
+- {uri: 'whisper://schema/full', mimeType: text/markdown}
+- {uri: 'whisper://stats', mimeType: application/json, note: per-layer lastRefresh, ageSeconds and coverage OK / DEGRADED / EMPTY}
+- {uri: 'whisper://quota', mimeType: application/json}
+- {uri: 'whisper://server', mimeType: application/json}
+prompts: [indicator-enrichment, infrastructure-mapping, typosquat, supply-chain, anycast-dns-root-sovereignty, bgp-hijack-exposure, build-takedown-evidence-package, nameserver-hijack-dns-consistency, route-health, subdomain-takeover]
+annotations:
+  every_tool: 'readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true'
+  read_only_guarantee: No write tool and no write scope; submit_indicator and submit_feedback and the mcp:write scope were removed in 2026-08 (connector changelog).
+deployment:
+  mode: both
+  endpoint: https://mcp.whisper.security
+  install: whisper mcp
+  package: https://github.com/whisper-sec/whisper-cli
+  auth: oauth
+  verified: probed
+  probe:
+    checked: '2026-09-19'
+    request: 'POST https://mcp.whisper.security/ {"jsonrpc":"2.0","id":1,"method":"tools/list"} (Accept: application/json, text/event-stream)'
+    http_status: 401
+    www_authenticate: 'Bearer scope="mcp:read", resource_metadata="https://mcp.whisper.security/.well-known/oauth-protected-resource"'
+    body: '{"error":"Missing credentials","suggestion":"Authenticate with OAuth — discovery at https://mcp.whisper.security/.well-known/oauth-protected-resource. Clients that cannot run the OAuth flow may send a static API key as Authorization: Bearer <api-key> (or X-API-Key: <api-key>)."}'
+    result: gated — live tool schemas need an authenticated session; tool names and annotations were read from the anonymous /.well-known/mcp-manifest.json (200) instead
+    note: 'POST /mcp and the initialize method return the identical 401; the discovery documents /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource both answer 200 anonymously.'

@@ -1,0 +1,559 @@
+generated: '2026-09-19'
+method: probed
+source: 'Live GET probes on 2026-09-19 of the closed /.well-known/* path list (plus /apis.json, /apis.yml, /openapi.json where
+  noted) on eleven hosts the record knows: the apex and www, the three product subdomains, the documented graph and RDAP API
+  hosts, the MCP host from mcp/whisper-online-mcp.yml, the auth server it names (the same host), the corporate site, the console
+  and the network AS site. Every row is a request that was issued and the status it returned.'
+summary:
+  hosts_probed: 11
+  paths_probed: 123
+  documents_served: 28
+  note: 'Whisper serves an unusually broad discovery surface: an RFC 9116 security.txt on four hosts (PGP-signed on three),
+    RFC 8414 + RFC 9728 OAuth metadata on the MCP host, an A2A card in BOTH the 1.0 and legacy 0.3 shapes on six hosts, an
+    OpenID SSF configuration, a SCITT key set, an RFC 9092 geofeed, an agent-onboarding manifest, an Agent Skills index, a
+    CA bundle descriptor and two MCP descriptors. Absent everywhere: openid-configuration, api-catalog (RFC 9727), ai-plugin.json,
+    apis.json, ucp/acp/aauth. The console host answers 200 with a sign-in HTML shell and menu.whisper.online answers 200 with
+    its catalogue JSON for every path — both recorded as misses.'
+  pointer_rule: WellKnown and SecurityTxt pointers are emitted because real documents were served (security.txt, oauth-authorization-server,
+    oauth-protected-resource, agent cards, ssf-configuration, mcp.json, mcp-manifest.json).
+hosts:
+- host: whisper.online
+  role: 'Platform apex: website, docs, OpenAPI servers[], A2A endpoint, ledger, verify-identity'
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    file: whisper-online-security.txt
+    standard: RFC 9116
+    note: PGP-signed; Contact security@whisper.security; Policy disclosure-policy.txt; Expires 2027-09-17
+  - path: /.well-known/openid-configuration
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/api-catalog.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/ucp.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/acp.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /apis.yml
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card.json
+    standard: A2A 1.0
+    note: 23,281 bytes; graded in a2a/whisper-online-a2a.yml
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card-legacy.json
+    standard: A2A 0.3.0 (legacy path)
+    note: 21,662 bytes; same 37 skills in the 0.3 shape
+  - path: /.well-known/mcp.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/agent-onboarding.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: whisper-online-agent-onboarding.json
+    standard: provider-specific onboarding manifest
+    note: discover -> sign up -> use; trial limits, control-plane calls, CA bundle pointers
+  - path: /.well-known/ssf-configuration
+    status: 200
+    content_type: application/json
+    file: whisper-online-ssf-configuration.json
+    standard: OpenID Shared Signals Framework 1.0 / CAEP
+    note: poll delivery urn:ietf:rfc:8936; events credential-change, session-revoked; status list at /checkpoint/status-list
+  - path: /.well-known/scitt-keys
+    status: 200
+    content_type: application/cbor
+    standard: IETF SCITT (COSE key set)
+    note: 49-byte CBOR; not saved (binary), recorded
+  - path: /.well-known/geofeed
+    status: 200
+    content_type: text/csv;charset=utf-8
+    standard: RFC 9092
+    note: 35,891 bytes of per-/128 prefix,country rows; not saved (size), recorded
+  - path: /.well-known/disclosure-policy.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    file: whisper-online-disclosure-policy.txt
+    standard: CVD policy (linked from security.txt Policy)
+    note: Last updated 2026-09-17
+  - path: /.well-known/security-acknowledgments.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    standard: security.txt Acknowledgments
+    note: '"(none yet, so be the first)"'
+  - path: /.well-known/openpgp-key.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    standard: security.txt Encryption
+    note: fingerprint EFF1 663D 9925 3968 2106 A5EA D0F7 0908 CF3B 7929
+  - path: /.well-known/skills/index.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: whisper-online-skills-index.json
+    standard: Agent Skills index
+    note: 'one skill: whisper-identity -> /.well-known/skills/whisper-identity/SKILL.md (saved under skills/)'
+  - path: /.well-known/whisper-ca.json
+    status: 200
+    content_type: application/json
+    file: whisper-online-whisper-ca.json
+    standard: provider CA bundle descriptor
+    note: Whisper Agent Identity Root/Issuing CA fingerprints; PEMs at whisper-ca.pem / whisper-ca-chain.pem
+- host: www.whisper.online
+  role: Alias of the apex (same responses)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    file: whisper-online-security.txt
+    standard: RFC 9116
+    note: identical to the apex file
+  - path: /.well-known/openid-configuration
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card.json
+    standard: A2A 1.0
+    note: byte-identical to the apex card
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card-legacy.json
+    standard: A2A 0.3.0 (legacy path)
+  - path: /.well-known/mcp.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+- host: agents.whisper.online
+  role: The live agent network / living nest (own llms.txt; same OpenAPI and cards)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    file: whisper-online-security.txt
+    standard: RFC 9116
+    note: identical to the apex file
+  - path: /.well-known/openid-configuration
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card.json
+    standard: A2A 1.0
+    note: byte-identical to the apex card
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card-legacy.json
+    standard: A2A 0.3.0 (legacy path)
+  - path: /.well-known/mcp.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+- host: endpoint.whisper.online
+  role: Whisper Endpoint (EDR/sensor product; own llms.txt; same OpenAPI and cards)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    file: whisper-online-security.txt
+    standard: RFC 9116
+    note: identical to the apex file
+  - path: /.well-known/openid-configuration
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /apis.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card.json
+    standard: A2A 1.0
+    note: byte-identical to the apex card
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card-legacy.json
+    standard: A2A 0.3.0 (legacy path)
+  - path: /.well-known/mcp.json
+    status: 404
+    content_type: text/plain;charset=utf-8
+- host: graph.whisper.online
+  role: Documented control-plane / graph API host (POST /api/query)
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/openid-configuration
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/api-catalog
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/apis.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /apis.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /openapi.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card.json
+    standard: A2A 1.0
+    note: the one well-known path the API hosts do serve
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card-legacy.json
+    standard: A2A 0.3.0 (legacy path)
+- host: rdap.whisper.online
+  role: RDAP (RFC 9083) and verify-identity host
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/openid-configuration
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/api-catalog
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/apis.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /apis.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /openapi.json
+    status: 403
+    content_type: application/json;charset=utf-8
+    note: '{"error":"forbidden"} — the API host answers 403 for every non-API path'
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card.json
+    standard: A2A 1.0
+    note: the one well-known path the API hosts do serve
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json;charset=utf-8
+    file: ../a2a/whisper-online-agent-card-legacy.json
+    standard: A2A 0.3.0 (legacy path)
+- host: mcp.whisper.security
+  role: Hosted MCP server (RFC 9728 protected resource)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain;charset=utf-8
+    file: whisper-online-mcp-security.txt
+    standard: RFC 9116
+    note: unsigned; Expires 2027-03-03; Policy points at the corporate privacy policy
+  - path: /.well-known/openid-configuration
+    status: 404
+    content_type: application/json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    file: whisper-online-mcp-oauth-authorization-server.json
+    standard: RFC 8414
+    note: issuer https://mcp.whisper.security; scopes mcp:read, offline_access, mcp:query; PKCE S256; RFC 7591 registration_endpoint;
+      client_id_metadata_document_supported
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: application/json
+    file: whisper-online-mcp-oauth-protected-resource.json
+    standard: RFC 9728
+    note: resource https://mcp.whisper.security; authorization_servers [https://mcp.whisper.security]; named in the 401 WWW-Authenticate
+      challenge
+  - path: /.well-known/api-catalog
+    status: 404
+    content_type: application/json
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    content_type: application/json
+  - path: /.well-known/agent-card.json
+    status: 404
+    content_type: application/json
+  - path: /.well-known/agent.json
+    status: 404
+    content_type: application/json
+  - path: /.well-known/apis.json
+    status: 404
+    content_type: application/json
+  - path: /apis.json
+    status: 401
+    content_type: application/json;charset=UTF-8
+    note: every non-well-known path on the MCP host is behind the bearer gate
+  - path: /.well-known/mcp.json
+    status: 200
+    content_type: application/json
+    file: whisper-online-mcp.json
+    standard: MCP server descriptor (mcpServers shape)
+    note: transport streamable-http; auth bearer + oauth scopes; documentation, privacy, terms, support
+  - path: /.well-known/mcp-manifest.json
+    status: 200
+    content_type: application/json
+    file: whisper-online-mcp-manifest.json
+    standard: MCP public manifest
+    note: tool names with readOnly/destructive annotations, 4 resources, 10 prompts — the anonymous stand-in for tools/list
+- host: www.whisper.security
+  role: Corporate site and WhisperGraph docs (whisper.security redirects here)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain; charset=utf-8
+    file: whisper-online-corporate-security.txt
+    standard: RFC 9116
+    note: PGP-signed; two Canonical lines (www and apex); Expires 2027-09-18; whisper.security redirects to www
+  - path: /.well-known/openid-configuration
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent.json
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/apis.json
+    status: 404
+    content_type: text/html; charset=utf-8
+  - path: /apis.json
+    status: 404
+    content_type: text/html; charset=utf-8
+- host: console.whisper.security
+  role: Console (sign-up / sign-in; Clerk)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/openid-configuration
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/api-catalog
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /.well-known/apis.json
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+  - path: /apis.json
+    status: 200
+    content_type: text/html; charset=utf-8
+    note: 302 -> /sign-in?redirect_url=... HTML shell (Clerk sign-in) for EVERY path — not a document; treated as a miss
+- host: menu.whisper.online
+  role: Live service catalogue (GET /menu)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/openid-configuration
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/api-catalog
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /.well-known/apis.json
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+  - path: /apis.json
+    status: 200
+    content_type: application/json
+    note: 'catch-all: every path returns the same 3,869-byte /menu service catalogue — not a document at this path; treated
+      as a miss'
+- host: as219419.net
+  role: The autonomous system operated by Whisper Security (network layer)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/plain; charset=utf-8
+    file: whisper-online-as219419-security.txt
+    standard: RFC 9116
+    note: PGP-signed; the AS219419 network layer has its own policy, key and acknowledgments; Expires 2027-06-19

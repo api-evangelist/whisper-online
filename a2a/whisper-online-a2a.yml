@@ -1,0 +1,265 @@
+generated: '2026-09-19'
+method: probed
+source: https://whisper.online/.well-known/agent-card.json
+card:
+  file: a2a/whisper-online-agent-card.json
+  legacy_file: a2a/whisper-online-agent-card-legacy.json
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: whisper.online
+  also_served_on:
+  - www.whisper.online
+  - agents.whisper.online
+  - endpoint.whisper.online
+  - graph.whisper.online
+  - rdap.whisper.online
+  legacy:
+    path: /.well-known/agent.json
+    status: 200
+    note: A second, 0.3.0-shaped card (top-level protocolVersion 0.3.0, url, preferredTransport JSONRPC, supportsAuthenticatedExtendedCard)
+      with the identical 37 skills, served on the same six hosts. Whisper publishes both shapes on purpose so 0.3-era
+      and 1.0 readers each find a card they can parse.
+  not_served_on:
+  - host: mcp.whisper.security
+    status: 404
+  - host: console.whisper.security
+    status: 200
+    note: HTML sign-in redirect, not a card
+  - host: menu.whisper.online
+    status: 200
+    note: catch-all JSON menu for every path, not a card
+  note: 'Byte-identical 23,281-byte application/json body on all six hosts. Ownership: provider.organization "Whisper
+    Security", provider.url https://whisper.online, the OpenAPI (info.contact Whisper Security, servers[] https://whisper.online)
+    declares the card as operation agentCard and the endpoint as a2aSendMessage, llms.txt and the CVD policy both
+    name the card and the /a2a endpoint, and the card version 0.219.2 equals the CLI release of 2026-09-17.'
+x-evidence:
+  fetched: '2026-09-19'
+  url: https://whisper.online/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json;charset=utf-8
+  body_bytes: 23281
+  body_parses_as: JSON object with AgentCard shape (name, version, provider, supportedInterfaces, capabilities,
+    securitySchemes, defaultInputModes, defaultOutputModes, skills)
+  corroborating_probes:
+  - url: https://whisper.online/.well-known/agent.json
+    http_status: 200
+    content_type: application/json;charset=utf-8
+    body_bytes: 21662
+  - url: https://whisper.online/a2a
+    method: GET
+    http_status: 400
+    body: '{"jsonrpc":"2.0","id":null,"error":{"code":-32600,"message":"the A2A endpoint is JSON-RPC 2.0 over POST;
+      the Agent Card describing it is at /.well-known/agent-card.json"}}'
+    note: The declared interface exists, speaks JSON-RPC 2.0 and points back at the card; a callable agent surface,
+      not a documentation page.
+  - url: https://graph.whisper.online/.well-known/agent-card.json
+    http_status: 200
+  - url: https://rdap.whisper.online/.well-known/agent-card.json
+    http_status: 200
+  - url: https://mcp.whisper.security/.well-known/agent-card.json
+    http_status: 404
+conformance:
+  spec: A2A 1.0.0
+  grade: conformant
+  protocol_version: '1.0'
+  preferred_transport: null
+  transport: JSONRPC (via supportedInterfaces[0].protocolBinding)
+  hard_checks:
+    capabilities_is_object: true
+    protocol_version_present: true
+    skills_is_array: true
+  optional_fields:
+    default_input_modes: true
+    default_output_modes: true
+    preferred_transport: false
+  grade_basis: capabilities is an OBJECT {streaming:false, pushNotifications:false, extendedAgentCard:false} (pass);
+    protocolVersion is present as "1.0" on supportedInterfaces[0], where A2A 1.0.0 carries it after supportedInterfaces[]
+    replaced the 0.3-era top-level url/preferredTransport/protocolVersion triple (pass, same reading as the leadping
+    precedent); skills is an ARRAY of 37 (pass). defaultInputModes and defaultOutputModes are both declared. preferredTransport
+    is absent because 1.0.0 superseded it with protocolBinding, which the card declares.
+  legacy_card:
+    spec: A2A 0.3.0
+    grade: conformant
+    protocol_version: 0.3.0
+    preferred_transport: JSONRPC
+    url: https://whisper.online/a2a
+    hard_checks:
+      capabilities_is_object: true
+      protocol_version_present: true
+      skills_is_array: true
+    supports_authenticated_extended_card: false
+  deviations:
+  - field: protocolVersion
+    observed: carried on supportedInterfaces[0], not at the top level (1.0 shape); the sibling /.well-known/agent.json
+      carries it top-level (0.3 shape)
+    note: Two shapes coexist deliberately; a reader written for either version finds a valid card.
+  - field: securitySchemes.whisperApiKey
+    observed: 1.0 oneof-style wrapper {apiKeySecurityScheme:{location:header, name:X-API-Key}}
+    note: 'Skills DO carry securityRequirements: 22 of 37 skills bind the whisperApiKey scheme (submit, agents.agent,
+      agents.alert, agents.connect, agents.disconnect, agents.domain...), while the keyless skills carry an empty/absent
+      requirement — so the key gate is machine-readable per skill, consistent with the prose "Answers without an
+      API key".'
+  - field: documentationUrl
+    observed: https://whisper.online/llms-full.txt
+    note: Points at the llms-full.txt catalogue rather than an HTML docs page — readable by an agent, which is the
+      stated intent.
+  - field: signatures / extensions
+    observed: absent
+    note: No JWS signature block; the card authenticity rests on TLS and on the DNSSEC/DANE chain the platform is
+      built around rather than on a signed card.
+  - field: skills
+    observed: '37 skills: 16 cognition/signup skills (keyless except submit) + 21 agents.* control-plane skills
+      mirroring CALL whisper.agents ops'
+    note: Every skill routes to the one JSON-RPC SendMessage method and, behind it, the single Cypher endpoint;
+      the card is a projection of the whole API, unlike most cards in the catalog.
+agent_card:
+  name: Whisper
+  description: Give an AI agent a stable, routable IPv6 address of its own and egress that anyone can verify from
+    outside. Use this when you need a fixed IP your traffic actually leaves from, an identity another service can
+    check independently by reverse DNS and RDAP rather than taking your word for it, or control over what an agent
+    is allowed to reach and a record of what it did. It also answers security questions about any domain, address
+    or file hash from the Whisper graph, with no account at all. The address space is AS219419, which we run; an
+    email address alone is enough to get a key.
+  version: 0.219.2
+  documentation_url: https://whisper.online/llms-full.txt
+  icon_url: https://whisper.online/logo.png
+  provider:
+    organization: Whisper Security
+    url: https://whisper.online
+  supported_interfaces:
+  - url: https://whisper.online/a2a
+    protocolBinding: JSONRPC
+    protocolVersion: '1.0'
+  capabilities:
+    streaming: false
+    pushNotifications: false
+    extendedAgentCard: false
+  default_input_modes:
+  - text/plain
+  - application/json
+  default_output_modes:
+  - application/json
+  - text/plain
+  security_schemes:
+    whisperApiKey:
+      apiKeySecurityScheme:
+        description: Your Whisper API key. Obtain one with the keyless "signup" skill.
+        location: header
+        name: X-API-Key
+  skills_count: 37
+  skill_fields:
+  - description
+  - examples
+  - id
+  - inputModes
+  - name
+  - outputModes
+  - securityRequirements
+  - tags
+  keyless_skills:
+  - signup
+  - identify
+  - assess
+  - walk
+  - watch
+  - explain
+  - variants
+  - origins
+  - history
+  - lookupTlsFingerprint
+  - lookupTorRelay
+  - asset
+  - threatintel
+  - psl
+  - topAsnsByPrefixCount
+  key_gated_skills:
+  - submit
+  - agents.agent
+  - agents.alert
+  - agents.connect
+  - agents.disconnect
+  - agents.domain
+  - agents.firewall
+  - agents.history
+  - agents.host
+  - agents.identity
+  - agents.list
+  - agents.logs
+  - agents.lookups
+  - agents.partner
+  - agents.policy
+  - agents.register
+  - agents.rename
+  - agents.resolver
+  - agents.revoke
+  - agents.task
+  - agents.token
+  - agents.verify
+  skill_ids:
+  - signup
+  - identify
+  - assess
+  - walk
+  - watch
+  - submit
+  - explain
+  - variants
+  - origins
+  - history
+  - lookupTlsFingerprint
+  - lookupTorRelay
+  - asset
+  - threatintel
+  - psl
+  - topAsnsByPrefixCount
+  - agents.agent
+  - agents.alert
+  - agents.connect
+  - agents.disconnect
+  - agents.domain
+  - agents.firewall
+  - agents.history
+  - agents.host
+  - agents.identity
+  - agents.list
+  - agents.logs
+  - agents.lookups
+  - agents.partner
+  - agents.policy
+  - agents.register
+  - agents.rename
+  - agents.resolver
+  - agents.revoke
+  - agents.task
+  - agents.token
+  - agents.verify
+  legacy_card_same_skills: true
+  skills_with_security_requirements:
+  - submit
+  - agents.agent
+  - agents.alert
+  - agents.connect
+  - agents.disconnect
+  - agents.domain
+  - agents.firewall
+  - agents.history
+  - agents.host
+  - agents.identity
+  - agents.list
+  - agents.logs
+  - agents.lookups
+  - agents.partner
+  - agents.policy
+  - agents.register
+  - agents.rename
+  - agents.resolver
+  - agents.revoke
+  - agents.task
+  - agents.token
+  - agents.verify
+surface_relationship:
+  note: 'The A2A card is a full projection of the platform: its 37 skills are the 16 graph/cognition verbs plus
+    the 21 whisper.agents ops that the CLI, SDKs, n8n node and local MCP server also wrap (mcp/whisper-online-tool-crosswalk.yml).
+    The hosted MCP server (mcp.whisper.security) is the narrower surface — 7 read-only graph tools, no control plane.
+    The A2A endpoint https://whisper.online/a2a is declared in the OpenAPI as operation a2aSendMessage.'

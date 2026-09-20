@@ -1,0 +1,61 @@
+generated: '2026-09-19'
+method: searched
+source: https://www.whisper.security/docs/ai/mcp/setup
+docs:
+- https://www.whisper.security/docs/ai/mcp/setup
+- https://mcp.whisper.security/.well-known/oauth-authorization-server
+- https://mcp.whisper.security/.well-known/oauth-protected-resource
+- https://whisper.online/docs/control-plane
+description: >-
+  Two permission models. The hosted MCP server is an OAuth 2.1 protected resource: RFC 8414 metadata at
+  https://mcp.whisper.security/.well-known/oauth-authorization-server (fetched 2026-09-19, saved under
+  well-known/) advertises scopes_supported [mcp:read, offline_access, mcp:query], grant types
+  authorization_code + refresh_token, PKCE S256 only, token_endpoint_auth_methods_supported [none],
+  a registration_endpoint (RFC 7591 dynamic client registration) and client_id_metadata_document_supported.
+  The REST control plane uses API-key scopes named in the control-plane docs and the FORBIDDEN_SCOPE error;
+  only the names the provider publishes are listed. The OpenAPI itself declares no oauth2 securityScheme
+  (derive-oauth-scopes.py found none), so this file is searched, not derived.
+oauth:
+  issuer: https://mcp.whisper.security
+  authorization_endpoint: https://mcp.whisper.security/oauth/authorize
+  token_endpoint: https://mcp.whisper.security/oauth/token
+  registration_endpoint: https://mcp.whisper.security/oauth/register
+  revocation_endpoint: https://mcp.whisper.security/oauth/revoke
+  grant_types: [authorization_code, refresh_token]
+  code_challenge_methods: [S256]
+  token_endpoint_auth_methods: [none]
+  response_types: [code]
+  resource_indicators_supported: true
+  client_id_metadata_document_supported: true
+  default_grant: mcp:read offline_access
+  challenge: 'WWW-Authenticate: Bearer scope="mcp:read" (observed live) — a client that copies the challenge verbatim gets no refresh token; ask for mcp:read offline_access'
+  token_lifetimes:
+    access_token: 1 hour
+    refresh_token: up to 180 days, rotating on every use
+scopes:
+- scope: mcp:read
+  description: 'All seven tools (query, explain_indicator, explain_schema, read_docs, list_workflows, run_workflow, identify), the four resources (whisper://schema/full, whisper://stats, whisper://quota, whisper://server) and the ten prompts — the entire surface; nothing on it can change state.'
+  surface: hosted MCP
+- scope: offline_access
+  description: A refresh token so the connection survives without another browser round-trip; no additional data access.
+  surface: hosted MCP
+- scope: mcp:query
+  description: Legacy name that grants the same whole surface; documented as "Ask for mcp:read".
+  surface: hosted MCP
+  legacy: true
+- scope: mcp:write
+  description: Removed in 2026-08 together with submit_indicator and submit_feedback; no write scope exists.
+  surface: hosted MCP
+  removed: 2026-08
+api_key_scopes:
+  note: 'Static API keys on the MCP connector are not scope-limited ("a key carries whatever its tenant is entitled to"). On the control plane, "register, policy, and revoke need admin:dns; the rest need the matching read/write scope"; DNS rights are granted automatically at signup.'
+  scopes:
+  - scope: admin:dns
+    grants: 'whisper.agents ops register, policy, revoke'
+    source: https://whisper.online/docs/control-plane
+  - scope: dns:logs:read
+    grants: 'whisper.agents op logs'
+    source: 'control-plane docs error example {"code":"FORBIDDEN_SCOPE","message":"Missing required scope: dns:logs:read"}'
+  key_prefixes:
+    whisper.online platform: whisper_live_
+    whisper.security signup (agent-signup docs): whisper-

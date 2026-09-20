@@ -1,0 +1,117 @@
+generated: '2026-09-19'
+method: searched
+format: rfc7807 (application/problem+json) on the graph query path; envelope error objects on whisper.agents; JSON-RPC 2.0 errors on /a2a
+source: https://www.whisper.security/docs/cypher-api/errors
+derived_from: openapi/whisper-online-openapi.json
+docs:
+- https://www.whisper.security/docs/cypher-api/errors
+- https://whisper.online/docs/control-plane
+- https://www.whisper.security/docs/cypher-api/reference
+description: >-
+  Whisper returns errors in three shapes depending on which path a request takes through the single
+  /api/query endpoint. A malformed or refused raw Cypher statement returns an RFC 7807 problem document
+  with a stable `type` URI under https://whisper.security/errors/ and a `suggestions[]` array whose
+  entries carry safeToAutoRetry. A CALL whisper.agents({op}) failure returns HTTP 200 with the
+  procedure-row envelope where ok:false and `error` is an object {code, message, retryable} (never a
+  string) plus retry_after seconds on 429/503. The A2A endpoint returns JSON-RPC 2.0 error objects.
+  Observed live 2026-09-19: POST https://graph.whisper.online/api/query with an unbalanced MATCH
+  returned 400 application/problem+json {"type":"https://whisper.security/errors/query-error",
+  "title":"Query Error","status":400,"detail":"Expected ')' but got 'RETURN' at position 9",
+  "instance":"/api/query","timestamp":"2026-09-19T22:37:36.802204624Z","suggestions":[{"kind":
+  "balance_punctuation",...,"safeToAutoRetry":false}]}.
+envelopes:
+  problem_json:
+    media_type: application/problem+json
+    shape: '{ type: URI under https://whisper.security/errors/, title, status, detail, instance, timestamp, suggestions[]{kind, rationale, rewrite, confidence, safeToAutoRetry}, + per-type extras (reason, timeoutMs, elapsedMs) }'
+    stable_key: type slug — branch on it, never on detail
+    tracing: X-Request-Id and X-Served-By response headers on every response (documented for graph.whisper.security)
+  agents_envelope:
+    media_type: application/json
+    http_status: 200 (the envelope carries its own status)
+    shape: '{ columns:[op, ok, status, result, error, retry_after, elapsed_ms], rows:[{ op, ok:false, status, error:{ code, message, retryable }, retry_after }] }'
+  a2a_jsonrpc:
+    media_type: application/json
+    shape: '{ jsonrpc:"2.0", id, error:{ code, message } }'
+    observed: 'GET https://whisper.online/a2a -> 400 {"jsonrpc":"2.0","id":null,"error":{"code":-32600,"message":"the A2A endpoint is JSON-RPC 2.0 over POST; the Agent Card describing it is at /.well-known/agent-card.json"}}'
+  mcp_tool_error:
+    shape: 'a normal tools/call result with isError:true and a human-readable content[0].text naming the fix; an unrecognised bearer on the hosted connector is HTTP 401 {"error":"Invalid API key"}'
+problems:
+- type: https://whisper.security/errors/query-error
+  status: 400
+  title: Query Error
+  condition: Malformed Cypher, an unbound variable or unsupplied $parameter, an unknown procedure, or any write clause (CREATE, MERGE, SET, DELETE, REMOVE, DROP) — refused before anything runs with a readonly_engine suggestion.
+  remediation: Fix the query; detail names the position, variable or procedure and suggestions[] proposes a rewrite.
+- type: https://whisper.security/errors/query-validation-error
+  status: 400
+  title: Query Validation Error
+  condition: No statement — an empty query field or a body without query.
+  remediation: Send a query field with a statement in it.
+- type: https://whisper.security/errors/query-unservable
+  status: 400
+  title: Query Unservable
+  condition: The engine cannot plan the shape; extra field reason is global_edge_count or unanchored_virtual_edge_scan.
+  remediation: Label or anchor at least one endpoint of a computed edge; use CALL db.relationshipTypes() or GET /api/query/stats for totals.
+- type: https://whisper.security/errors/query-depth-exceeded
+  status: 400
+  title: Query Depth Exceeded
+  condition: The pattern is deeper than the caller's access allows (keyless callers hit this first).
+  remediation: Sign in / send a key, or decompose the chain and anchor the next request on what came back.
+- type: https://whisper.security/errors/missing-query-parameter
+  status: 400
+  title: Missing Query Parameter
+  condition: GET or form-encoded call with no q.
+  remediation: Send ?q= or use POST with a JSON body.
+- type: https://whisper.security/errors/malformed-request-body
+  status: 400
+  title: Malformed Request Body
+  condition: Body is not valid JSON.
+- type: (not a problem document)
+  status: 403
+  title: Forbidden
+  condition: A browser page sent a cross-origin request; the API does not answer those. Also observed on 2026-09-19 for every non-API path on graph.whisper.online and rdap.whisper.online ({"error":"forbidden"}).
+  remediation: Call the API from a server or script; put your own backend between a browser front end and the API.
+- type: https://whisper.security/errors/query-timeout
+  status: 408
+  title: Query Timeout
+  condition: The query ran past its time budget; body adds timeoutMs and elapsedMs.
+  remediation: Anchor on a name, bound the wide hop with WITH ... LIMIT, stage the traversal.
+- type: https://whisper.security/errors/unsupported-media-type
+  status: 415
+  title: Unsupported Media Type
+  condition: Content-Type is neither JSON nor form-encoded.
+- type: https://whisper.security/errors/query-quota-exceeded
+  status: 429
+  title: Query Quota Exceeded
+  condition: More requests at once, or more in a row, than the caller's access allows.
+  remediation: Wait, then retry; batch indicators into one UNWIND query instead of one request each.
+control_plane_codes:
+- code: FORBIDDEN_SCOPE
+  http_status: 403
+  example: '{"code":"FORBIDDEN_SCOPE","message":"Missing required scope: dns:logs:read","retryable":false}'
+  openapi: 'POST /api/query 403 - The key lacks the scope the op requires.'
+- code: AGENT_LIMIT
+  http_status: 429
+  condition: "register past the account's concurrently-registered agent cap (default 5 per the control-plane docs; onboarding manifest says max_agents 1000)." 
+- code: IDENTITY_LIMIT
+  http_status: 429
+  condition: identity or connect past the standing /128 cap.
+- code: (400)
+  condition: "Malformed query, bad arguments, or an op outside the allowlist (openapi POST /api/query 400); a whale.publish_name value that is neither true nor false is a 400, never a silent false." 
+other_observed:
+- endpoint: GET /verify-identity (no address)
+  status: 400
+  body: '{"error":"bad_request","detail":"provide an IP literal or an agent FQDN as ?ip=<addr-or-fqdn> or /verify-identity/<addr-or-fqdn>"}'
+- endpoint: GET /inclusion (missing or malformed leaf)
+  status: 400
+  source: 'openapi ledgerInclusion 400 "Missing or malformed leaf." - docs say a bad leaf is a clear 400, never a 500'
+- endpoint: POST /a2a (unparseable / not JSON-RPC)
+  status: 400
+  source: openapi a2aSendMessage 400
+- endpoint: mcp.whisper.security (no credentials)
+  status: 401
+  body: '{"error":"Missing credentials","suggestion":"Authenticate with OAuth — discovery at https://mcp.whisper.security/.well-known/oauth-protected-resource. ..."}'
+non_errors_worth_knowing:
+- 'An unrecognised API key on the graph REST endpoint does NOT fail the request: it runs with reduced access and answers 200. Confirm with CALL whisper.quota() (isAnonymous must be false). The MCP connector rejects the same key with 401.'
+- 'explain() and whisper.history() return available:false with retryAfter in the body when the threat-intel backend is briefly unavailable; the HTTP request still succeeds.'
+- 'A batch of ;-separated statements answers 200 as a whole; check each results[].success / outcome (OK, PARSE_ERROR, EXECUTION_ERROR, DEADLINE_EXCEEDED).'
+- 'A successful response may carry advisories[] (null-pagination-param, skip-past-cardinality, schema-drift-rewrite, vdp-plane-empty, ...) — non-fatal notes to branch on by kind.'

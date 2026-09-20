@@ -1,0 +1,23 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+# Security contact for the Whisper corporate site (whisper.security),
+# operated by Whisper Security / viaGraph b.v.
+# The platform has its own file: https://whisper.online/.well-known/security.txt
+# The AS219419 network layer has its own: https://as219419.net/.well-known/security.txt
+Contact: mailto:security@whisper.security
+Contact: https://www.whisper.security/contact-us
+Encryption: https://whisper.online/.well-known/openpgp-key.txt
+Policy: https://whisper.online/.well-known/disclosure-policy.txt
+Acknowledgments: https://whisper.online/.well-known/security-acknowledgments.txt
+Preferred-Languages: en
+Canonical: https://www.whisper.security/.well-known/security.txt
+Canonical: https://whisper.security/.well-known/security.txt
+Expires: 2027-09-18T00:00:00.000Z
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQTv8WY9mSU5aCEGperQ9wkIzzt5KQUCaq1GSQAKCRDQ9wkIzzt5
+KcK2AP9kwXIgaoLtdIN1/DUwHAdeyOau3XKLMPzQhODK4rxh7gEAoGiyfgQnsZj1
+VtSM8bbdVTeY3kHXhzZqu9j/JfytIw4=
+=vEHR
+-----END PGP SIGNATURE-----
