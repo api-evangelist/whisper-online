@@ -43,7 +43,7 @@ tags:
 - RDAP
 - Transparency Log
 - Graph Database
-- agent-native
+- Agent-Native
 - Netherlands
 tags_raw:
 - Agent identity
@@ -61,58 +61,19 @@ tags_raw:
 - Graph database
 - Agent-native
 - Netherlands
+- agent-native
 apis:
-- aid: whisper-online:whisper-api
-  name: Whisper API
-  description: >-
-    The keyless half of the platform as an OpenAPI 3.1.0 contract (info.version 1.1.0, 13 operations, served at
-    https://whisper.online/openapi.json and byte-identically on agents. and endpoint.whisper.online): the single
-    Cypher endpoint POST /api/query (keyless graph reads; with X-API-Key the whole control plane via CALL
-    whisper.agents), the A2A JSON-RPC endpoint POST /a2a, GET /verify-identity, the RFC 6962 transparency ledger
-    (checkpoint, key, status-list, OpenTimestamps anchor, tiles, inclusion and consistency proofs), the live
-    service catalogue GET /menu, and the two discovery documents. The spec deliberately excludes surfaces another
-    standard already specifies (DoH, RDAP, geofeed, security.txt, SSF, SCITT, the agent card, MCP) and points at
-    those standards instead.
-  humanURL: https://whisper.online/docs
-  baseURL: https://whisper.online
-  image: https://whisper.online/logo.png
-  tags:
-  - Agent Identity
-  - Transparency Log
-  - A2A
-  - IPv6
-  - DNSSEC
-  properties:
-  - type: OpenAPI
-    url: openapi/whisper-online-openapi.json
-  - type: OpenAPI
-    name: Whisper API OpenAPI (provider-hosted)
-    url: https://whisper.online/openapi.json
-  - type: Documentation
-    url: https://whisper.online/docs
-  - type: APIReference
-    url: https://whisper.online/docs/graph-api
-  - type: GettingStarted
-    url: https://whisper.online/docs/quickstart
-  - type: Overlay
-    url: overlays/whisper-online-openapi-overlay.yaml
-  - type: ErrorCatalog
-    url: errors/whisper-online-problem-types.yml
-  - type: Conventions
-    url: conventions/whisper-online-conventions.yml
-  - type: AgenticAccess
-    url: agentic-access/whisper-online-agentic-access.yml
 - aid: whisper-online:whispergraph-control-plane
   name: WhisperGraph and Control Plane (Cypher API)
   description: >-
-    The documented front door for both halves of the platform: POST https://graph.whisper.online/api/query runs
-    openCypher against WhisperGraph (41 node labels, 52 edge types; identify, assess, explain, walk, origins,
-    history, variants, the psl.* family, named views attackSurface / blastRadius / brandPhishingFleet, and raw
-    read-only MATCH — keyless, capped at 100 rows) and, with X-API-Key, the one control verb CALL
-    whisper.agents({op, args}) for register, identity, list, agent, connect, policy, logs and revoke. Errors are
-    RFC 7807 application/problem+json with stable type slugs; the whisper.agents envelope carries ok/status/error/
-    retry_after. graph.whisper.security is the legacy host with the same three endpoints (POST and GET /api/query,
-    GET /api/query/stats).
+    The documented front door for both halves of the platform: POST https://graph.whisper.online/api/query
+    runs openCypher against WhisperGraph (41 node labels, 52 edge types; identify, assess, explain, walk,
+    origins, history, variants, the psl.* family, named views attackSurface / blastRadius / brandPhishingFleet,
+    and raw read-only MATCH — keyless, capped at 100 rows) and, with X-API-Key, the one control verb CALL
+    whisper.agents({op, args}) for register, identity, list, agent, connect, policy, logs and revoke.
+    Errors are RFC 7807 application/problem+json with stable type slugs; the whisper.agents envelope carries
+    ok/status/error/ retry_after. graph.whisper.security is the legacy host with the same three endpoints
+    (POST and GET /api/query, GET /api/query/stats).
   humanURL: https://whisper.online/docs/control-plane
   baseURL: https://graph.whisper.online
   image: https://whisper.online/logo.png
@@ -148,15 +109,20 @@ apis:
     Hosted remote MCP server at https://mcp.whisper.security (Streamable HTTP, protocol revisions up to
     2025-11-25) advertising seven read-only tools (query, explain_indicator, explain_schema, read_docs,
     list_workflows, run_workflow, identify), four resources and ten prompts, listed in the Claude Connectors
-    Directory and the MCP registry. An RFC 9728 protected resource: an anonymous tools/list returns 401 with a
-    WWW-Authenticate challenge naming /.well-known/oauth-protected-resource; OAuth 2.1 with RFC 7591 dynamic
-    client registration and PKCE S256 (scopes mcp:read, offline_access) or a static bearer key. A stdio sibling
-    ships inside the whisper CLI (whisper mcp; io.github.whisper-sec/whisper) adding keyless whisper_verify and
-    whisper_rdap plus the key-gated control-plane tools.
+    Directory and the MCP registry. An RFC 9728 protected resource: an anonymous tools/list returns 401
+    with a WWW-Authenticate challenge naming /.well-known/oauth-protected-resource; OAuth 2.1 with RFC
+    7591 dynamic client registration and PKCE S256 (scopes mcp:read, offline_access) or a static bearer
+    key. A stdio sibling ships inside the whisper CLI (whisper mcp; io.github.whisper-sec/whisper) adding
+    keyless whisper_verify and whisper_rdap plus the key-gated control-plane tools.
   humanURL: https://www.whisper.security/docs/ai/mcp/setup
   baseURL: https://mcp.whisper.security
   image: https://whisper.online/logo.png
   tags:
+  - MCP
+  - Agent-Native
+  - Threat Intelligence
+  - Graph Database
+  tags_raw:
   - MCP
   - agent-native
   - Threat Intelligence
@@ -182,16 +148,20 @@ apis:
 - aid: whisper-online:whisper-a2a-agent
   name: Whisper A2A Agent
   description: >-
-    Agent2Agent surface: an A2A 1.0-shaped card at https://whisper.online/.well-known/agent-card.json (version
-    0.219.2, provider Whisper Security, JSONRPC binding, capabilities object, 37 skills — 15 keyless cognition
-    and signup skills, 22 key-gated skills including every whisper.agents control-plane op) and a legacy
-    0.3.0-shaped twin at /.well-known/agent.json, both served on six hosts. The JSON-RPC 2.0 endpoint
-    https://whisper.online/a2a answers GET with -32600 pointing back at the card; skills are a binding over the
-    same Cypher call the REST endpoint runs.
+    Agent2Agent surface: an A2A 1.0-shaped card at https://whisper.online/.well-known/agent-card.json
+    (version 0.219.2, provider Whisper Security, JSONRPC binding, capabilities object, 37 skills — 15
+    keyless cognition and signup skills, 22 key-gated skills including every whisper.agents control-plane
+    op) and a legacy 0.3.0-shaped twin at /.well-known/agent.json, both served on six hosts. The JSON-RPC
+    2.0 endpoint https://whisper.online/a2a answers GET with -32600 pointing back at the card; skills
+    are a binding over the same Cypher call the REST endpoint runs.
   humanURL: https://whisper.online/docs/a2a-trust
   baseURL: https://whisper.online/a2a
   image: https://whisper.online/logo.png
   tags:
+  - A2A
+  - Agent-Native
+  - Agent Identity
+  tags_raw:
   - A2A
   - agent-native
   - Agent Identity
@@ -207,11 +177,11 @@ apis:
   name: Whisper RDAP and Identity Verification
   description: >-
     RFC 9083 Registration Data Access Protocol for agent identities (application/rdap+json, rdapConformance
-    rdap_level_0) at https://rdap.whisper.online/ip/{address}, with /help, a per-agent /transparency arm carrying
-    issuance events and inclusion proofs, and the keyless full-chain verdict at /verify-identity/{address}
-    (is_whisper_agent, dane_ok, jws_ok and the evidence). The same record answers over WHOIS (RFC 3912) at
-    whois.whisper.online and FINGER; registry rules and the data licence are at nic.whisper.online. Verified live
-    against the published first resident on 2026-09-19.
+    rdap_level_0) at https://rdap.whisper.online/ip/{address}, with /help, a per-agent /transparency arm
+    carrying issuance events and inclusion proofs, and the keyless full-chain verdict at /verify-identity/{address}
+    (is_whisper_agent, dane_ok, jws_ok and the evidence). The same record answers over WHOIS (RFC 3912)
+    at whois.whisper.online and FINGER; registry rules and the data licence are at nic.whisper.online.
+    Verified live against the published first resident on 2026-09-19.
   humanURL: https://whisper.online/docs/rdap
   baseURL: https://rdap.whisper.online
   image: https://whisper.online/logo.png
@@ -226,12 +196,212 @@ apis:
   - type: Documentation
     name: Verify an agent (seven keyless proofs)
     url: https://whisper.online/docs/verify
+- aid: whisper-online:whisper-online-a2a-api
+  name: Whisper Security A2a API
+  description: The A2a API from Whisper Security — 1 operation(s) for a2a.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - A2a
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-a2a-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-checkpoint-api
+  name: Whisper Security Checkpoint API
+  description: The Checkpoint API from Whisper Security — 4 operation(s) for checkpoint.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Checkpoint
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-checkpoint-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-consistency-api
+  name: Whisper Security Consistency API
+  description: The Consistency API from Whisper Security — 1 operation(s) for consistency.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Consistency
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-consistency-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-inclusion-api
+  name: Whisper Security Inclusion API
+  description: The Inclusion API from Whisper Security — 1 operation(s) for inclusion.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Inclusion
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-inclusion-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-menu-api
+  name: Whisper Security Menu API
+  description: The Menu API from Whisper Security — 1 operation(s) for menu.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Menu
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-menu-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-query-api
+  name: Whisper Security Query API
+  description: The Query API from Whisper Security — 1 operation(s) for query.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Query
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-query-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-tile-api
+  name: Whisper Security Tile API
+  description: The Tile API from Whisper Security — 1 operation(s) for tile.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Tile
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-tile-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-verify-identity-api
+  name: Whisper Security Verify Identity API
+  description: The Verify Identity API from Whisper Security — 1 operation(s) for verify identity.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - Verify Identity
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-verify-identity-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
+- aid: whisper-online:whisper-online-well-known-api
+  name: Whisper Security .well Known API
+  description: The .well Known API from Whisper Security — 2 operation(s) for .well known.
+  humanURL: https://whisper.online/docs
+  baseURL: https://graph.whisper.online
+  tags:
+  - .well Known
+  properties:
+  - type: OpenAPI
+    url: openapi/whisper-online-well-known-api-openapi.yml
+  - type: Documentation
+    url: https://whisper.online/docs
+  - type: APIReference
+    url: https://whisper.online/docs/graph-api
+  - type: GettingStarted
+    url: https://whisper.online/docs/quickstart
+  - type: ErrorCatalog
+    url: errors/whisper-online-problem-types.yml
+  - type: Conventions
+    url: conventions/whisper-online-conventions.yml
+  - type: AgenticAccess
+    url: agentic-access/whisper-online-agentic-access.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/whisper-online-openapi-overlay.yaml
 - type: Website
   url: https://whisper.online/
 - type: Documentation
@@ -343,3 +513,10 @@ x-enrichment:
   status: enriched
   artifacts_added: 44
   pass: local-v3
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://whisper.online/.well-known/agent-card.json"
+  grade: "flavored"
+  protocol_version: "1.0"
+  control: 404

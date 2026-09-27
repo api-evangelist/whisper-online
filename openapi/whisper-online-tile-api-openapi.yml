@@ -1,0 +1,57 @@
+openapi: 3.2.0
+info:
+  title: Whisper Tile API
+  summary: Identity and safe egress for AI agents, and the security graph behind it.
+  description: Every endpoint described here was exercised live before this document was written.
+  version: 1.1.0
+  contact:
+    name: Whisper Security
+    url: https://whisper.online
+  license:
+    name: Proprietary
+    url: https://whisper.online/terms
+servers:
+- url: https://whisper.online
+  description: The main site, verification, and the ledger
+tags:
+- name: Tile
+paths:
+  /tile/{level}/{index}:
+    get:
+      summary: A Merkle tile of the ledger
+      operationId: ledgerTile
+      security: []
+      description: Keyless. Tiles let a verifier reconstruct and check the tree itself.
+      parameters:
+      - name: level
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 0
+      - name: index
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '000'
+      responses:
+        '200':
+          description: Tile bytes.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+      tags:
+      - Tile
+components:
+  securitySchemes:
+    whisperApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json.
+externalDocs:
+  description: The full catalog, written for agents
+  url: https://whisper.online/llms-full.txt

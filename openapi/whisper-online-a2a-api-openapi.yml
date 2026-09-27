@@ -1,0 +1,78 @@
+openapi: 3.2.0
+info:
+  title: Whisper A2a API
+  summary: Identity and safe egress for AI agents, and the security graph behind it.
+  description: Every endpoint described here was exercised live before this document was written.
+  version: 1.1.0
+  contact:
+    name: Whisper Security
+    url: https://whisper.online
+  license:
+    name: Proprietary
+    url: https://whisper.online/terms
+servers:
+- url: https://whisper.online
+  description: The main site, verification, and the ledger
+tags:
+- name: A2a
+paths:
+  /a2a:
+    post:
+      summary: A2A JSON-RPC endpoint
+      description: JSON-RPC 2.0, A2A 1.0. The method is `SendMessage`. Keyless skills answer with no credential; control skills need `X-API-Key` and are a binding over the same Cypher call above, not a second implementation of it. The Agent Card at /.well-known/agent-card.json lists every skill.
+      operationId: a2aSendMessage
+      security:
+      - {}
+      - whisperApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - jsonrpc
+              - method
+              properties:
+                jsonrpc:
+                  type: string
+                  const: '2.0'
+                id: {}
+                method:
+                  type: string
+                  example: SendMessage
+                params:
+                  type: object
+            example:
+              jsonrpc: '2.0'
+              id: 1
+              method: SendMessage
+              params:
+                message:
+                  messageId: m1
+                  role: ROLE_USER
+                  parts:
+                  - data:
+                      skill: assess
+                      input: example.com
+      responses:
+        '200':
+          description: A JSON-RPC result, or a JSON-RPC error object.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Unparseable, or not a JSON-RPC request.
+      tags:
+      - A2a
+components:
+  securitySchemes:
+    whisperApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json.
+externalDocs:
+  description: The full catalog, written for agents
+  url: https://whisper.online/llms-full.txt

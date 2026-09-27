@@ -1,0 +1,49 @@
+{
+  "provider": "whisper-online",
+  "sources": [
+    "whisper-online-openapi.json"
+  ],
+  "outputs": [
+    "whisper-online-well-known-api-openapi.yml",
+    "whisper-online-a2a-api-openapi.yml",
+    "whisper-online-checkpoint-api-openapi.yml",
+    "whisper-online-consistency-api-openapi.yml",
+    "whisper-online-inclusion-api-openapi.yml",
+    "whisper-online-menu-api-openapi.yml",
+    "whisper-online-query-api-openapi.yml",
+    "whisper-online-tile-api-openapi.yml",
+    "whisper-online-verify-identity-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/whisper-online-openapi.json"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "whisper-online-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "whisper-online-openapi.json: tagged paths POST /api/query -> Query",
+    "whisper-online-openapi.json: tagged paths POST /a2a -> A2a",
+    "whisper-online-openapi.json: tagged paths GET /verify-identity -> Verify Identity",
+    "whisper-online-openapi.json: tagged paths GET /checkpoint -> Checkpoint",
+    "whisper-online-openapi.json: tagged paths GET /checkpoint/key -> Checkpoint",
+    "whisper-online-openapi.json: tagged paths GET /checkpoint/status-list -> Checkpoint",
+    "whisper-online-openapi.json: tagged paths GET /checkpoint/ots/latest-confirmed -> Checkpoint",
+    "whisper-online-openapi.json: tagged paths GET /tile/{level}/{index} -> Tile",
+    "whisper-online-openapi.json: tagged paths GET /inclusion -> Inclusion",
+    "whisper-online-openapi.json: tagged paths GET /consistency -> Consistency",
+    "whisper-online-openapi.json: tagged paths GET /menu -> Menu",
+    "whisper-online-openapi.json: tagged paths GET /.well-known/agent-card.json -> .well Known",
+    "whisper-online-openapi.json: tagged paths GET /.well-known/agent-onboarding.json -> .well Known",
+    "whisper-online-openapi.json: declared missing tag: .well Known",
+    "whisper-online-openapi.json: declared missing tag: A2a",
+    "whisper-online-openapi.json: declared missing tag: Checkpoint",
+    "whisper-online-openapi.json: declared missing tag: Consistency",
+    "whisper-online-openapi.json: declared missing tag: Inclusion",
+    "whisper-online-openapi.json: declared missing tag: Menu",
+    "whisper-online-openapi.json: declared missing tag: Query",
+    "whisper-online-openapi.json: declared missing tag: Tile",
+    "whisper-online-openapi.json: declared missing tag: Verify Identity",
+    "apis.yml register: written (+9 apis, 13 total)"
+  ],
+  "skipped": []
+}

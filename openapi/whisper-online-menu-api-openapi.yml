@@ -1,0 +1,46 @@
+openapi: 3.2.0
+info:
+  title: Whisper Menu API
+  summary: Identity and safe egress for AI agents, and the security graph behind it.
+  description: Every endpoint described here was exercised live before this document was written.
+  version: 1.1.0
+  contact:
+    name: Whisper Security
+    url: https://whisper.online
+  license:
+    name: Proprietary
+    url: https://whisper.online/terms
+servers:
+- url: https://whisper.online
+  description: The main site, verification, and the ledger
+tags:
+- name: Menu
+paths:
+  /menu:
+    servers:
+    - url: https://menu.whisper.online
+      description: The live service catalog
+    get:
+      summary: Every service that is live right now
+      operationId: menu
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      description: Generated from the same canonical list the code dispatches from, so it cannot describe a verb we do not serve. Queried from inside your own tunnel it answers with your personalized URLs.
+      tags:
+      - Menu
+components:
+  securitySchemes:
+    whisperApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json.
+externalDocs:
+  description: The full catalog, written for agents
+  url: https://whisper.online/llms-full.txt

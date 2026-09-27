@@ -1,0 +1,43 @@
+openapi: 3.2.0
+info:
+  title: Whisper Consistency API
+  summary: Identity and safe egress for AI agents, and the security graph behind it.
+  description: Every endpoint described here was exercised live before this document was written.
+  version: 1.1.0
+  contact:
+    name: Whisper Security
+    url: https://whisper.online
+  license:
+    name: Proprietary
+    url: https://whisper.online/terms
+servers:
+- url: https://whisper.online
+  description: The main site, verification, and the ledger
+tags:
+- name: Consistency
+paths:
+  /consistency:
+    get:
+      summary: Consistency proof between two checkpoints
+      operationId: ledgerConsistency
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      description: 'Keyless. Proves the ledger is append-only: an earlier tree is a prefix of a later one.'
+      tags:
+      - Consistency
+components:
+  securitySchemes:
+    whisperApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json.
+externalDocs:
+  description: The full catalog, written for agents
+  url: https://whisper.online/llms-full.txt

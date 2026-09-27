@@ -1,0 +1,53 @@
+openapi: 3.2.0
+info:
+  title: Whisper Inclusion API
+  summary: Identity and safe egress for AI agents, and the security graph behind it.
+  description: Every endpoint described here was exercised live before this document was written.
+  version: 1.1.0
+  contact:
+    name: Whisper Security
+    url: https://whisper.online
+  license:
+    name: Proprietary
+    url: https://whisper.online/terms
+servers:
+- url: https://whisper.online
+  description: The main site, verification, and the ledger
+tags:
+- name: Inclusion
+paths:
+  /inclusion:
+    get:
+      summary: Inclusion proof for one ledger leaf
+      operationId: ledgerInclusion
+      security: []
+      description: Keyless. Proves a specific identity statement is in the tree the checkpoint commits to.
+      parameters:
+      - name: leaf
+        in: query
+        required: true
+        schema:
+          type: string
+        description: A leaf index (0 <= N < tree_size), or a 64-hex statement digest.
+        example: '0'
+      responses:
+        '200':
+          description: The proof.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Missing or malformed leaf.
+      tags:
+      - Inclusion
+components:
+  securitySchemes:
+    whisperApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json.
+externalDocs:
+  description: The full catalog, written for agents
+  url: https://whisper.online/llms-full.txt

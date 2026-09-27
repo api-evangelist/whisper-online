@@ -1,0 +1,58 @@
+openapi: 3.2.0
+info:
+  title: Whisper .well Known API
+  summary: Identity and safe egress for AI agents, and the security graph behind it.
+  description: Every endpoint described here was exercised live before this document was written.
+  version: 1.1.0
+  contact:
+    name: Whisper Security
+    url: https://whisper.online
+  license:
+    name: Proprietary
+    url: https://whisper.online/terms
+servers:
+- url: https://whisper.online
+  description: The main site, verification, and the ledger
+tags:
+- name: .well Known
+paths:
+  /.well-known/agent-card.json:
+    get:
+      summary: A2A Agent Card
+      operationId: agentCard
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      description: Every skill, which half is keyless, and the JSON-RPC endpoint that serves them.
+      tags:
+      - .well Known
+  /.well-known/agent-onboarding.json:
+    get:
+      summary: Machine-readable onboarding manifest
+      operationId: agentOnboarding
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      description: The structured form of the journey from an email address to a working, routable identity.
+      tags:
+      - .well Known
+components:
+  securitySchemes:
+    whisperApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A whisper_live_... key. Obtainable from an email address alone, with no human step; see /.well-known/agent-onboarding.json.
+externalDocs:
+  description: The full catalog, written for agents
+  url: https://whisper.online/llms-full.txt
