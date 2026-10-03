@@ -1,7 +1,7 @@
 {
   "provider": "whisper-online",
   "sources": [
-    "whisper-online-openapi.json"
+    "_original/whisper-online-openapi.json"
   ],
   "outputs": [
     "whisper-online-well-known-api-openapi.yml",
@@ -14,12 +14,11 @@
     "whisper-online-tile-api-openapi.yml",
     "whisper-online-verify-identity-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/whisper-online-openapi.json"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "whisper-online-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
     "whisper-online-openapi.json: tagged paths POST /api/query -> Query",
     "whisper-online-openapi.json: tagged paths POST /a2a -> A2a",
@@ -43,7 +42,17 @@
     "whisper-online-openapi.json: declared missing tag: Query",
     "whisper-online-openapi.json: declared missing tag: Tile",
     "whisper-online-openapi.json: declared missing tag: Verify Identity",
-    "apis.yml register: written (+9 apis, 13 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "whisper-online-a2a-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-checkpoint-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-consistency-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-inclusion-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-menu-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-query-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-tile-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-verify-identity-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisper-online-well-known-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
