@@ -202,6 +202,8 @@ apis:
   humanURL: https://whisper.online/docs
   baseURL: https://graph.whisper.online
   tags:
+  - A2A
+  tags_raw:
   - A2a
   properties:
   - type: OpenAPI
@@ -224,6 +226,8 @@ apis:
   humanURL: https://whisper.online/docs
   baseURL: https://graph.whisper.online
   tags:
+  - Check Point
+  tags_raw:
   - Checkpoint
   properties:
   - type: OpenAPI
@@ -290,6 +294,8 @@ apis:
   humanURL: https://whisper.online/docs
   baseURL: https://graph.whisper.online
   tags:
+  - Menus
+  tags_raw:
   - Menu
   properties:
   - type: OpenAPI
@@ -400,6 +406,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/whisper-online-capability-edges.yml
+  name: Whisper Security Business Capability Map
 - type: Overlay
   url: overlays/whisper-online-openapi-overlay.yaml
 - type: Website
