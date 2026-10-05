@@ -1,0 +1,12 @@
+{
+ "url": "https://graph.whisper.online/openapi.json",
+ "requested_url": "https://graph.whisper.online/openapi.json",
+ "status": 200,
+ "content_type": "application/json;charset=utf-8",
+ "bytes": 16332,
+ "sha256": "fa720aba4c8a62553a58751b0e25bf20898eaec109b71c29c3e13a52959f0811",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "equivalent",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the provider's current document describes the same operations (Jaccard 1.0), but the bytes differ, so the archive is an earlier or reformatted copy."
+}
