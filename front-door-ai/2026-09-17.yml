@@ -1,0 +1,32 @@
+# Front Door AI Index — whisper-online — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: whisper-online
+  lexicon_version: '1.0'
+  probed_at: '2026-09-25'
+  host: whisper.online
+  final_host: whisper.online
+  ownership: own
+  owner: whisper-online
+  shares_host_with: null
+  inherited_from: null
+  alias_of: null
+  verdict: scored
+  score: 11
+  band: 5
+  band_label: prominent
+  host_score: 11
+  density: 5.1
+  words: 2155
+  tiers:
+    agentic: 7
+    core: 4
+    model: 0
+  ambiguous: 61
+  top_terms:
+    agent: 61
+    AI: 4
+    AI agent: 3
+    autonomous agent: 3
+    llms.txt: 1
