@@ -1,0 +1,11 @@
+[
+  {
+    "repo": "whisper-online",
+    "captured_at": "2026-10-11T194341",
+    "source_url": "https://whisper.online",
+    "source_type": "root-domain",
+    "file": "whisper-online-2026-10-11T194341.png",
+    "bytes": 444903,
+    "capture": "playwright-local"
+  }
+]
